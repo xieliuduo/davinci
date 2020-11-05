@@ -7,7 +7,8 @@ import chartOptionGenerator from '../../render/chart'
 const styles = require('./Chart.less')
 
 interface IChartStates {
-  seriesItems: string[]
+  seriesItems: string[],
+  mapName: string
 }
 export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   private asyncEmitTimer: NodeJS.Timer | null = null
@@ -16,6 +17,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   constructor(props) {
     super(props)
     this.state = {
+      mapName:'china',
       seriesItems: []
     }
   }
@@ -35,7 +37,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
       isDrilling,
       onError
     } = props
-
+    let mapName = this.state.mapName
     if (renderType === 'loading') {
       return
     }
@@ -50,10 +52,12 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         this.instance.clear()
       }
     }
-
+ 
     try {
       this.instance.off('click')
       this.instance.on('click', (params) => {
+        console.log('click',123)
+        this.setState({ mapName: params.data.name })
         this.collectSelectedItems(params)
       })
 
@@ -61,11 +65,12 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         chartOptionGenerator(
           chartlibs.find((cl) => cl.id === selectedChart).name,
           props,
-          {
+          { 
             instance: this.instance,
             isDrilling,
             getDataDrillDetail,
             selectedItems: this.props.selectedItems,
+            mapName,
             callback: (seriesData) => {
               this.instance.off('click')
               this.instance.on('click', (params) => {
@@ -74,7 +79,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
             }
           }
         )
-      )
+      ) 
       this.instance.resize()
     } catch (error) {
       if (onError) {
@@ -93,6 +98,9 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   }
 
   private collectSelectedItems = (params, seriesData?) => {
+    console.log('chart', params)
+    console.log('seriesData', seriesData)
+    console.log('this.state', this.state)
     const {
       data,
       selectedChart,
@@ -109,6 +117,9 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     if (this.props.selectedItems && this.props.selectedItems.length) {
       selectedItems = [...this.props.selectedItems]
     }
+    // if (selectedChart === 7) {
+    //   this.setState({ seriesItems: series })
+    // }
     let dataIndex = params.dataIndex
     if (selectedChart === 4) {
       dataIndex = params.seriesIndex
@@ -164,6 +175,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   }
 
   public render() {
+    console.log('chart render')
     return (
       <div
         className={styles.chartContainer}

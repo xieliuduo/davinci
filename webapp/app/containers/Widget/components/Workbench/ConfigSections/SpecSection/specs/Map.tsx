@@ -33,7 +33,7 @@ function SpecSectionMap (props: ISpecSectionMapProps) {
             <Select
               placeholder="类型"
               className={styles.blockElm}
-              value={layerType}
+              value={layerType} 
               onChange={onSectionChange(onChange, 'layerType')}
             >
               {chartLayerTypeOptions}

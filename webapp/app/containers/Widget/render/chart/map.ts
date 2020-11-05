@@ -43,7 +43,7 @@ import { getFormattedValue } from '../../components/Config/Format'
 const provinceSuffix = ['省', '自治区', '市']
 const citySuffix = ['自治州', '市', '区', '县', '旗', '盟', '镇']
 
-export default function (chartProps: IChartProps) {
+export default function(chartProps: IChartProps, drillOptions) {
   const {
     chartStyles,
     data,
@@ -71,7 +71,7 @@ export default function (chartProps: IChartProps) {
     linesSpeed,
     symbolType
   } = spec
-
+  const{mapName} =drillOptions
   const tooltip: EChartOption.Tooltip = {
     trigger: 'item',
     formatter: (params: EChartOption.Tooltip.Format) => {
@@ -197,7 +197,7 @@ export default function (chartProps: IChartProps) {
       serieObj = {
         name: '地图',
         type: 'map',
-        mapType: 'china',
+        mapType: mapName,
         roam,
         data: Object.keys(dataTree).map((key, index) => {
           const { lon, lat, value } = dataTree[key]
@@ -423,7 +423,7 @@ export default function (chartProps: IChartProps) {
       mapOptions = {
         ...legendOption,
         geo: {
-          map: 'china',
+          map: mapName,
           roam
         },
         series: linesSeries,
@@ -433,7 +433,7 @@ export default function (chartProps: IChartProps) {
     case 'scatter':
       mapOptions = {
         geo: {
-          map: 'china',
+          map: mapName,
           itemStyle: {
             normal: {
               areaColor: '#cccccc',
@@ -454,7 +454,7 @@ export default function (chartProps: IChartProps) {
     case 'heatmap':
       mapOptions = {
         geo: {
-          map: 'china',
+          map: mapName,
           itemStyle: {
             normal: {
               areaColor: '#cccccc',

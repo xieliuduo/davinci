@@ -29,7 +29,7 @@ export class PivotSection extends React.PureComponent<IPivotSectionProps, {}> {
     this.props.onChange(prop, color)
   }
 
-  public render () {
+  public render() {
     const { title, config } = this.props
 
     const {

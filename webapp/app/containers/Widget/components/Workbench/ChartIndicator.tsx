@@ -13,7 +13,7 @@ interface IChartIndicatorProps {
   onSelect: (chart: IChartInfo) => void
 }
 
-export function ChartIndicator (props: IChartIndicatorProps) {
+export function ChartIndicator(props: IChartIndicatorProps) {
   const { chartInfo, dimetionsCount, metricsCount, selectedCharts } = props
   const { title, icon, rules } = chartInfo
 
@@ -60,8 +60,8 @@ export function ChartIndicator (props: IChartIndicatorProps) {
   )
 }
 
-function onSelect (props) {
-  return function () {
+function onSelect(props) {
+  return function() {
     const { chartInfo, onSelect, dimetionsCount, metricsCount } = props
     if (checkChartEnable(dimetionsCount, metricsCount, chartInfo)) {
       onSelect(chartInfo)

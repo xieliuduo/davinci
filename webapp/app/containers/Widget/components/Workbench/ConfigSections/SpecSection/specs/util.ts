@@ -6,7 +6,7 @@ export const onSectionChange = (
     value: string | number | boolean,
     propPath: string | string[]
   ) => void,
-  propPath: keyof ISpecConfig
+  propPath: keyof ISpecConfig 
 ) => (e: CheckboxChangeEvent | string | number) => {
   const value: string | number | boolean = (e as CheckboxChangeEvent).target
     ? (e as CheckboxChangeEvent).target.checked

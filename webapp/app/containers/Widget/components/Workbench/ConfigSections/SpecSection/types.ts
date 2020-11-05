@@ -15,7 +15,7 @@ export interface ISpecConfig {
   linesSpeed: number
   symbolType: string
   layout?: 'horizontal' | 'vertical'
-
+  mapName?: string
   // for sankey
   nodeWidth: number
   nodeGap: number,

@@ -10,7 +10,7 @@ import {
   SankeySection,
   DoubleYAxisSection
 } from './specs'
-
+ 
 interface ISpecSectionProps {
   name: string
   title: string
@@ -21,7 +21,7 @@ interface ISpecSectionProps {
 
 export class SpecSection extends React.PureComponent<ISpecSectionProps, {}> {
   private static readonly BasePropPath = ['spec']
-
+ 
   private specChange = (
     value: string | number,
     propPath: string | string[]

@@ -40,7 +40,7 @@ export const DrillableChart = [
    * 地图
    * 7
    */
-
+7,
   /**
    * Parallel
    * 平行坐标图

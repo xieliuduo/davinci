@@ -100,6 +100,7 @@ export interface IChartStyles {
   bar?: IBarConfig
   radar?: IRadarConfig
   doubleYAxis?: IDoubleYAxisConfig
+  mapName?: string
 }
 
 export interface IChartRule {
@@ -195,7 +196,7 @@ export class Widget extends React.Component<
     editing: false
   }
 
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       width: 0,
@@ -206,11 +207,11 @@ export class Widget extends React.Component<
   private container = createRef<HTMLDivElement>()
   private remeasureRenderTypes = ['rerender', 'clear', 'refresh', 'resize', 'flush']
 
-  public componentDidMount () {
+  public componentDidMount() {
     this.getContainerSize()
   }
 
-  public componentWillReceiveProps (nextProps: IWidgetProps) {
+  public componentWillReceiveProps(nextProps: IWidgetProps) {
     if (this.remeasureRenderTypes.includes(nextProps.renderType)) {
       this.getContainerSize()
     }
@@ -232,7 +233,7 @@ export class Widget extends React.Component<
     }
   }
 
-  public render () {
+  public render() {
     const { loading, empty, ...rest } = this.props
     const { width, height } = this.state
 
