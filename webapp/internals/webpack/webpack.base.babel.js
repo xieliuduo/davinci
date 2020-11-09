@@ -213,7 +213,7 @@ module.exports = options => ({
   ]),
   resolve: {
     modules: ['node_modules', 'app'],
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.react.js'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.react.js','.json'],
     mainFields: ['browser', 'jsnext:main', 'main'],
     alias: {
       'react-resizable': path.resolve(process.cwd(), 'libs/react-resizable'),
