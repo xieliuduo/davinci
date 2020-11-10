@@ -20,7 +20,7 @@
 
 import { IChartProps } from '../../../../components/Chart'
 import { EChartOption } from 'echarts'
-import {decodeMetricName} from '../../../../components/util'
+import { decodeMetricName } from '../../../../components/util'
 import {
   getProvinceParent,
   getProvinceName,
@@ -28,32 +28,16 @@ import {
   getProvinceArea,
   getVisualMapOptions
 } from '../utils'
+import { getLegendOption, getLabelOption } from '../../util'
 export function getLinesOption(chartProps: IChartProps, drillOptions, baseOption) {
 
   const { chartStyles, data, cols, metrics, model } = chartProps
   const { label, spec } = chartStyles
-  const { roam } = spec
   const {
-    labelColor,
-    labelFontFamily,
-    labelFontSize,
-    labelPosition,
-    showLabel
-  } = label
-
-  const{ mapName } = drillOptions
-  const labelOption = {
-    label: {
-      normal: {
-        formatter: '{b}',
-        position: labelPosition,
-        show: showLabel,
-        color: labelColor,
-        fontFamily: labelFontFamily,
-        fontSize: labelFontSize
-      }
-    }
-  }
+    layerType,
+    linesSpeed,
+    symbolType
+  } = spec
   const dataTree = {}
 
   const agg = metrics[0].agg
@@ -67,72 +51,120 @@ export function getLinesOption(chartProps: IChartProps, drillOptions, baseOption
   }
 
   data.forEach((record) => {
-    let areaVal
-    const group = []
-
     const value = record[`${agg}(${metricName})`]
     min = Math.min(min, value)
     max = Math.max(max, value)
-
-    cols.forEach((col) => {
-      const { visualType } = model[col.name]
-      if (visualType === 'geoProvince') {
-        areaVal = record[col.name]
-        const area = getProvinceArea(areaVal)
-        const provinceName = getProvinceName(areaVal)
-        if (area) {
-          if (!dataTree[provinceName]) {
-            dataTree[provinceName] = {
-              lon: area.lon,
-              lat: area.lat,
-              value,
-              mapLevel: 'provice',
-              children: {}
-            }
-          }
-        }
-      } else if (visualType === 'geoCity') {
-        areaVal = record[col.name]
-        const area = getCityArea(areaVal)
-        if (area) {
-          const provinceParent = getProvinceParent(area)
-          const parentName = getProvinceName(provinceParent.name)
-          if (!dataTree[parentName]) {
-            dataTree[parentName] = {
-              lon: area.lon,
-              lat: area.lat,
-              value: 0,
-              mapLevel: 'City',
-              children: {}
-            }
-          }
-          dataTree[parentName].value += value
-        }
-      }
-    })
   })
-  const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(min, max, 'map', chartStyles)
-  console.log(dataTree)
-  console.log('dataTree')
-  return {
-    ...baseOption,
-    ...labelOption,
-    ...visualMapOptions,
-    series: {
-      name: '地图',
-      type: 'map',
-      mapType: mapName,
-      roam,
-      data: Object.keys(dataTree).map((key, index) => {
-        const { lon, lat, value, mapLevel } = dataTree[key]
-        return {
-          name: key,
-          value: [lon, lat, value],
-          mapLevel
-        }
-      }),
-      ...labelOption
+  const labelOptionLines = {
+    label: getLabelOption('lines', label, metrics, true)
+  }
+  const getGeoCity = cols.filter((c) => model[c.name].visualType === 'geoCity')
+  const getGeoProvince = cols.filter((c) => model[c.name].visualType === 'geoProvince')
+  const linesSeries = []
+  const legendData = []
+  let effectScatterType
+  let linesType
+  data.forEach((d, index) => {
+    let linesSeriesData = []
+    let scatterData = []
+    const value = d[`${agg}(${metricName})`]
 
+    if (getGeoCity.length > 1 && d[getGeoCity[0].name] && d[getGeoCity[1].name]) {
+      const fromCityInfo = getCityArea(d[getGeoCity[0].name])
+      const toCityInfo = getCityArea(d[getGeoCity[1].name])
+
+      if (fromCityInfo && toCityInfo) {
+        legendData.push(d[getGeoCity[0].name])
+        linesSeriesData = [{
+          fromName: d[getGeoCity[0].name],
+          toName: d[getGeoCity[1].name],
+          coords: [[fromCityInfo.lon, fromCityInfo.lat], [toCityInfo.lon, toCityInfo.lat]]
+        }]
+        scatterData = [{
+          name: d[getGeoCity[1].name],
+          value: [toCityInfo.lon, toCityInfo.lat, value]
+        }]
+      }
+    } else if (getGeoProvince.length > 1 && d[getGeoProvince[0].name] && d[getGeoProvince[1].name]) {
+      const fromProvinceInfo = getProvinceArea(d[getGeoProvince[0].name])
+      const toProvinceInfo = getProvinceArea(d[getGeoProvince[1].name])
+
+      if (fromProvinceInfo && toProvinceInfo) {
+        legendData.push(d[getGeoProvince[0].name])
+        linesSeriesData = [{
+          fromName: d[getGeoProvince[0].name],
+          toName: d[getGeoProvince[1].name],
+          coords: [[fromProvinceInfo.lon, fromProvinceInfo.lat], [toProvinceInfo.lon, toProvinceInfo.lat]]
+        }]
+        scatterData = [{
+          name: d[getGeoProvince[1].name],
+          value: [toProvinceInfo.lon, toProvinceInfo.lat, value]
+        }]
+      }
+    } else {
+      return
     }
+
+    effectScatterType = {
+      name: '',
+      type: 'effectScatter',
+      coordinateSystem: 'geo',
+      zlevel: index,
+      rippleEffect: {
+          brushType: 'stroke'
+      },
+      ...labelOptionLines,
+      symbolSize: (val) => {
+          return 12
+      },
+
+      data: scatterData
+    }
+
+    linesType = {
+      name: '',
+      type: 'lines',
+      zlevel: index,
+      symbol: ['none', 'arrow'],
+      symbolSize: 10,
+      effect: {
+          show: true,
+          // period: 600,
+          trailLength: 0,
+          symbol: symbolType,
+          symbolSize: 15,
+          constantSpeed: linesSpeed
+      },
+      lineStyle: {
+          normal: {
+              width: 2,
+              opacity: 0.6,
+              curveness: 0.2
+          }
+      },
+      data: linesSeriesData
+    }
+    linesSeries.push(linesType, effectScatterType)
+  })
+
+  let legendOption
+  if (chartStyles.legend) {
+    legendOption = {
+      legend: getLegendOption(chartStyles.legend, legendData)
+    }
+  } else {
+    legendOption = null
+  }
+  const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(min, max, 'map', chartStyles)
+  const { tooltip, geo, labelOption } = baseOption
+  const {map, roam} = geo
+  return {
+    ...legendOption,
+    geo: {
+        map,
+        roam
+    },
+    ...visualMapOptions,
+    series: linesSeries
   }
 }

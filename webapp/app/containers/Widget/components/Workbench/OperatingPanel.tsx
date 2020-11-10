@@ -1440,8 +1440,7 @@ export class OperatingPanel extends React.Component<
   }
 
   private chartSelect = (chart: IChartInfo) => {
-    console.log('changeIcon',chart);
-    
+
     const { mode, dataParams } = this.state
     const { cols, rows, metrics } = dataParams
     if (mode === 'pivot') {

@@ -20,117 +20,113 @@
 
 import { IChartProps } from '../../../../components/Chart'
 import { EChartOption } from 'echarts'
-import {decodeMetricName} from '../../../../components/util'
+import { decodeMetricName } from '../../../../components/util'
 import {
-  getProvinceParent,
-  getProvinceName,
-  getCityArea,
-  getProvinceArea,
-  getVisualMapOptions
+    getProvinceParent,
+    getProvinceName,
+    getCityArea,
+    getProvinceArea,
+    getVisualMapOptions,
+    getAggValueByArr,
+    getMinMaxByDataTree,
+    getDataByProvinceField,
+    getDataByCityField,
+    getDataByCityFieldForProvince
 } from '../utils'
-export function getMapOption(chartProps: IChartProps, drillOptions, baseOption) {
+export function getMapOption(
+    chartProps: IChartProps,
+    drillOptions,
+    baseOption
+) {
+    const { chartStyles, data, cols, metrics, model } = chartProps
+    const { spec } = chartStyles
+    const { roam } = spec
+    const { mapName, mapData} = drillOptions
+    let dataTree = {}
 
-  const { chartStyles, data, cols, metrics, model } = chartProps
-  const { label, spec } = chartStyles
-  const { roam } = spec
-  const {
-    labelColor,
-    labelFontFamily,
-    labelFontSize,
-    labelPosition,
-    showLabel
-  } = label
-
-  const{ mapName } = drillOptions
-  const labelOption = {
-    label: {
-      normal: {
-        formatter: '{b}',
-        position: labelPosition,
-        show: showLabel,
-        color: labelColor,
-        fontFamily: labelFontFamily,
-        fontSize: labelFontSize
-      }
+    const agg = metrics[0].agg
+    const metricName = decodeMetricName(metrics[0].name)
+    const valueField = `${agg}(${metricName})`
+    const mapScope = mapData.mapScope
+    // const mapScope = {
+    //     range: 'province',
+    //     initData: ['china']
+    // }
+    dataTree = getDataTree()
+    function getDataTree() {
+        let dataTree
+        if (mapScope.range === 'country') {
+            //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
+            //  if (districtField) {
+            //      dataTree = getDataByDistrictField(provinceField.name, data)
+            //      return dataTree
+            //  }
+            const cityField = cols.find(
+                (field) => model[field.name].visualType === 'geoCity'
+            )
+            if (cityField) {
+                dataTree = getDataByCityField(cityField.name,  valueField, data)
+                for (const key in dataTree) {
+                    if (Object.prototype.hasOwnProperty.call(dataTree, key)) {
+                        dataTree[key].value = getAggValueByArr(dataTree[key].children, agg)
+                    }
+                 }
+                return dataTree
+            }
+            const provinceField = cols.find(
+                (field) => model[field.name].visualType === 'geoProvince'
+            )
+            if (provinceField) {
+                dataTree = getDataByProvinceField(provinceField.name, valueField, data)
+                return dataTree
+            }
+            return {}
+        }
+        if (mapScope.range === 'province') {
+            //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
+            //  if (districtField) {
+            //      dataTree = getDataByDistrictField(provinceField.name, data)
+            //      return dataTree
+            //  }
+            const cityField = cols.find(
+                (field) => model[field.name].visualType === 'geoCity'
+            )
+            if (cityField) {
+                dataTree = getDataByCityFieldForProvince(cityField.name,  valueField, data, mapScope.initData[0])
+                return dataTree
+            }
+            return {}
+        }
     }
-  }
-  const dataTree = {}
-
-  const agg = metrics[0].agg
-  const metricName = decodeMetricName(metrics[0].name)
-
-  let min = -Infinity
-  let max = Infinity
-  if (data.length) {
-    min = Math.min(max, data[0][`${agg}(${metricName})`])
-    max = Math.min(min, data[0][`${agg}(${metricName})`])
-  }
-
-  data.forEach((record) => {
-    let areaVal
-    const group = []
-
-    const value = record[`${agg}(${metricName})`]
-    min = Math.min(min, value)
-    max = Math.max(max, value)
-
-    cols.forEach((col) => {
-      const { visualType } = model[col.name]
-      if (visualType === 'geoProvince') {
-        areaVal = record[col.name]
-        const area = getProvinceArea(areaVal)
-        const provinceName = getProvinceName(areaVal)
-        if (area) {
-          if (!dataTree[provinceName]) {
-            dataTree[provinceName] = {
-              lon: area.lon,
-              lat: area.lat,
-              value,
-              mapLevel: 'provice',
-              children: {}
-            }
-          }
-        }
-      } else if (visualType === 'geoCity') {
-        areaVal = record[col.name]
-        const area = getCityArea(areaVal)
-        if (area) {
-          const provinceParent = getProvinceParent(area)
-          const parentName = getProvinceName(provinceParent.name)
-          if (!dataTree[parentName]) {
-            dataTree[parentName] = {
-              lon: area.lon,
-              lat: area.lat,
-              value: 0,
-              mapLevel: 'City',
-              children: {}
-            }
-          }
-          dataTree[parentName].value += value
-        }
-      }
-    })
-  })
-  const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(min, max, 'map', chartStyles)
-  console.log(dataTree)
-  console.log('dataTree')
-  return {
-    ...baseOption,
-    ...visualMapOptions,
-    series: {
-      name: '地图',
-      type: 'map',
-      mapType: mapName,
-      roam,
-      ...labelOption,
-      data: Object.keys(dataTree).map((key, index) => {
+    const { min = 0, max = 0 } = getMinMaxByDataTree(dataTree)
+    const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(
+        min,
+        max,
+        'map',
+        chartStyles
+    )
+    const { tooltip, geo, labelOption } = baseOption
+    const seriesData = Object.keys(dataTree).map((key, index) => {
         const { lon, lat, value, mapLevel } = dataTree[key]
         return {
-          name: key,
-          value: [lon, lat, value],
-          mapLevel
+            name: key,
+            value: [lon, lat, value],
+            mapLevel
         }
-      })
+    })
+    console.log('data', data)
+    console.log('dataTree', dataTree)
+    console.log('seriesData', seriesData)
+    return {
+        tooltip,
+        ...visualMapOptions,
+        series: {
+            name: '地图',
+            type: 'map',
+            mapType: mapName,
+            roam,
+            labelOption,
+            data: seriesData
+        }
     }
-  }
 }

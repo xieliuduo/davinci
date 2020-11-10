@@ -23,7 +23,7 @@ import {
   DEFAULT_ECHARTS_THEME
 } from 'app/globalConstants'
 
-const provinceSuffix = ['省', '自治区', '市', '特别行政区']
+const provinceSuffix = ['省', '市', '特别行政区', '维吾尔自治区', '回族自治区', '壮族自治区', '自治区', '行政区']
 const citySuffix = ['自治州', '市', '区', '县', '旗', '盟', '镇']
 
 export function getProvinceParent(area) {
@@ -93,6 +93,7 @@ export function getVisualMapOptions(min: number, max: number, layerType: string,
         show: layerType === 'lines' ? false : showVisualMap,
         min,
         max,
+        seriesIndex: [0],
         calculable: true,
         inRange: {
           color: [startColor, endColor]
@@ -113,6 +114,7 @@ export function getVisualMapOptions(min: number, max: number, layerType: string,
         show: false,
         min,
         max,
+        seriesIndex: [0],
         calculable: true,
         inRange: {
           color: DEFAULT_ECHARTS_THEME.visualMapColor
@@ -131,3 +133,112 @@ export function getVisualMapOptions(min: number, max: number, layerType: string,
   }
     return visualMapOptions
 }
+export  function getAggValueByArr(arr, agg) {
+        let res = 0
+        function getsun(arr) {
+            return arr.reduce((total, num) => {
+                    return total + num
+                })
+        }
+        function getAvg(arr) {
+            if (!arr.length) {return 0 }
+            return +(getsun(arr) / arr.length).toFixed(2)
+        }
+        switch (agg) {
+            case 'sum':
+               res = getsun(arr)
+               break
+            case 'avg':
+               res = getAvg(arr)
+               break
+            case 'count':
+               res = getsun(arr)
+               break
+            case 'COUNTDISTINCT':
+               res = getsun(arr)
+               break
+            case 'max':
+               res = Math.max(...arr)
+               break
+            case 'min':
+               res = Math.min(...arr)
+               break
+            default:
+                break
+        }
+        return res
+    }
+export function getMinMaxByDataTree(dataTree: object) {
+        const dataArr = Object.values(dataTree).map((item) => item.value)
+        let min = Math.min(...dataArr)
+        const max = Math.max(...dataArr)
+        if (min === max) {
+            min = min - 10
+        }
+        return { min, max }
+    }
+export function getDataByProvinceField(provinceField: string, valueField: string, data: object[]) {
+        const dataTree = {}
+        data.forEach((record) => {
+            const value = record[valueField]
+            const area = getProvinceArea(record[provinceField])
+            const provinceName = getProvinceName(record[provinceField])
+            if (area) {
+                if (!dataTree[provinceName]) {
+                    dataTree[provinceName] = {
+                        lon: area.lon,
+                        lat: area.lat,
+                        value,
+                        mapLevel: 'provice',
+                        children: {}
+                    }
+                }
+            }
+        })
+        return dataTree
+    }
+export  function getDataByCityField(cityField: string, valueField: string, data: object[]) {
+        const dataTree = {}
+        data.forEach((record) => {
+            const value = record[valueField]
+            const area = getCityArea(record[cityField])
+            if (area) {
+                const provinceParent = getProvinceParent(area)
+                const parentName = getProvinceName(provinceParent.name)
+                if (!dataTree[parentName]) {
+                    dataTree[parentName] = {
+                        lon: area.lon,
+                        lat: area.lat,
+                        value: 0,
+                        mapLevel: 'province',
+                        children: []
+                    }
+                }
+                dataTree[parentName].children.push(value)
+            }
+        })
+        return dataTree
+    }
+export function getDataByCityFieldForProvince(cityField: string, valueField: string, data: object[], province: string) {
+        const dataTree = {}
+        data.forEach((record) => {
+            const value = record[valueField]
+            const area = getCityArea(record[cityField])
+            if (area) {
+                const provinceParent = getProvinceParent(area)
+                const parentName = getProvinceName(provinceParent.name)
+                if (parentName === province) {
+                    if (!dataTree[area.name]) {
+                        dataTree[area.name] = {
+                            lon: area.lon,
+                            lat: area.lat,
+                            value,
+                            mapLevel: 'district',
+                            children: []
+                        }
+                    }
+                }
+            }
+        })
+        return dataTree
+    }

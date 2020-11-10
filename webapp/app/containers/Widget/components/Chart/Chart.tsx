@@ -8,7 +8,8 @@ const styles = require('./Chart.less')
 
 interface IChartStates {
   seriesItems: string[],
-  mapName: string
+  mapName: string,
+  mapData: object
 }
 export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   private asyncEmitTimer: NodeJS.Timer | null = null
@@ -18,6 +19,13 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     super(props)
     this.state = {
       mapName: 'china',
+      mapData: {
+        mapName: 'china',
+        mapScope: {
+          range: 'country',
+          initData: ['china']
+        }
+      },
       seriesItems: []
     }
   }
@@ -47,6 +55,14 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
       onError
     } = props
     const mapName = this.state.mapName
+    const mapData = this.state.mapData
+    if (mapName && mapName !== 'china') {
+      const jsonMap = this.mapNameHash[mapName]
+      const json = require(`assets/json/${jsonMap}.json`)
+      if (json) {
+        echarts.registerMap(mapName, json)
+      }
+    }
     if (renderType === 'loading') {
       return
     }
@@ -69,18 +85,45 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         if (!params) {
           return
         }
-        const jsonMap = this.mapNameHash[params.name]
-
-        if (!(params.name in this.mapNameHash)) {
-          return
+        if (params.data && params.data.mapLevel === 'district') {
+          const json = require(`assets/json/china.json`)
+          if (json) {
+            echarts.registerMap('china', json)
+          }
+          this.setState(
+            {
+              mapName: 'china',
+              mapData: {
+                mapName: 'china',
+                mapScope: {
+                  range: 'country',
+                  initData: ['china']
+                }
+              }
+            })
         }
-        if (params.name !== 'china') {
+        // if (!(params.name in this.mapNameHash)) {
+        //   return
+        // }
+        if (params.data && params.data.mapLevel === 'province') {
+
+          const jsonMap = this.mapNameHash[params.name]
           const json = require(`assets/json/${jsonMap}.json`)
           if (json) {
             echarts.registerMap(params.name, json)
            }
+          this.setState(
+            {
+              mapName: params.name,
+              mapData: {
+                mapName: params.name,
+                mapScope: {
+                  range: 'province',
+                  initData: [params.name]
+                }
+              }
+            })
         }
-        this.setState({ mapName: params.name })
         this.collectSelectedItems(params)
       })
 
@@ -94,6 +137,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
             getDataDrillDetail,
             selectedItems: this.props.selectedItems,
             mapName,
+            mapData,
             callback: (seriesData) => {
               this.instance.off('click')
               this.instance.on('click', (params) => {
