@@ -30,12 +30,14 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     }
   }
   public  mapNameHash = {
+    北京: 'beijing',
     河北: 'hebei',
     安徽: 'anhui',
     重庆: 'chongqing',
     青海: 'qinghai',
     四川: 'sichuan',
-    北京: 'beijing',
+    内蒙古: 'neimenggu',
+    黑龙江: 'heilongjiang',
     新疆: 'xinjiang'
   }
   public componentDidMount() {
@@ -58,7 +60,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     const mapData = this.state.mapData
     if (mapName && mapName !== 'china') {
       const jsonMap = this.mapNameHash[mapName]
-      const json = require(`assets/json/${jsonMap}.json`)
+      const json = require(`assets/json/geoJson/${jsonMap}.json`)
       if (json) {
         echarts.registerMap(mapName, json)
       }
@@ -82,11 +84,11 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
       this.instance.on('click', (params) => {
         console.log('click', 123)
         console.log('click', params)
-        if (!params) {
+        if (!params || !params.data) {
           return
         }
         if (params.data && params.data.mapLevel === 'district') {
-          const json = require(`assets/json/china.json`)
+          const json = require(`assets/json/geoJson/china.json`)
           if (json) {
             echarts.registerMap('china', json)
           }
@@ -108,7 +110,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         if (params.data && params.data.mapLevel === 'province') {
 
           const jsonMap = this.mapNameHash[params.name]
-          const json = require(`assets/json/${jsonMap}.json`)
+          const json = require(`assets/json/geoJson/${jsonMap}.json`)
           if (json) {
             echarts.registerMap(params.name, json)
            }

@@ -189,7 +189,7 @@ export function getDataByProvinceField(provinceField: string, valueField: string
                         lon: area.lon,
                         lat: area.lat,
                         value,
-                        mapLevel: 'provice',
+                        mapLevel: 'district', // province district
                         children: {}
                     }
                 }

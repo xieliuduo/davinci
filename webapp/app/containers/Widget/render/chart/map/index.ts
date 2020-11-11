@@ -85,11 +85,10 @@ export default function(chartProps: IChartProps, drillOptions) {
     formatter: (params: EChartOption.Tooltip.Format) => {
 
        const { name, data, color } = params
-
        const tooltipLabels = []
        if (color) {
         tooltipLabels.push(`<span class="widget-tooltip-circle" style="background: ${color}"></span>`)
-      }
+       }
        tooltipLabels.push(name)
        if (data) {
         tooltipLabels.push(': ')

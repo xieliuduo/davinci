@@ -22,10 +22,6 @@ import { IChartProps } from '../../../../components/Chart'
 import { EChartOption } from 'echarts'
 import { decodeMetricName, getSizeRate } from '../../../../components/util'
 import {
-  getProvinceParent,
-  getProvinceName,
-  getCityArea,
-  getProvinceArea,
   getVisualMapOptions,
   getAggValueByArr,
   getMinMaxByDataTree,
