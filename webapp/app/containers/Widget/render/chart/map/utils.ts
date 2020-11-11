@@ -135,14 +135,25 @@ export function getVisualMapOptions(min: number, max: number, layerType: string,
 }
 export  function getAggValueByArr(arr, agg) {
         let res = 0
+        function keyArr(arr) {
+          return arr.map((item) => item[0])
+        }
+        function valueArr(arr) {
+          return arr.map((item) => item[1])
+        }
         function getsun(arr) {
-            return arr.reduce((total, num) => {
-                    return total + num
-                })
+            return arr.reduce((total, item) => {
+                    return total + item[1]
+                }, 0)
+        }
+        function getCOUNTDISTINCT(arr) {
+          const keys = keyArr(arr)
+          return Array.from(new Set(keys)).length
         }
         function getAvg(arr) {
-            if (!arr.length) {return 0 }
-            return +(getsun(arr) / arr.length).toFixed(2)
+          const values = valueArr(arr)
+          if (!values.length) {return 0 }
+          return +(getsun(arr) / values.length).toFixed(4)
         }
         switch (agg) {
             case 'sum':
@@ -155,13 +166,14 @@ export  function getAggValueByArr(arr, agg) {
                res = getsun(arr)
                break
             case 'COUNTDISTINCT':
-               res = getsun(arr)
+              // TODO fix
+               res = getCOUNTDISTINCT(arr)
                break
             case 'max':
-               res = Math.max(...arr)
+               res = Math.max(...valueArr(arr))
                break
             case 'min':
-               res = Math.min(...arr)
+               res = Math.min(...valueArr(arr))
                break
             default:
                 break
@@ -214,7 +226,7 @@ export  function getDataByCityField(cityField: string, valueField: string, data:
                         children: []
                     }
                 }
-                dataTree[parentName].children.push(value)
+                dataTree[parentName].children.push([area.name, value])
             }
         })
         return dataTree
