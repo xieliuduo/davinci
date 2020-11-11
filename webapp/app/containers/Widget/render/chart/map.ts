@@ -43,7 +43,7 @@ import { getFormattedValue } from '../../components/Config/Format'
 const provinceSuffix = ['省', '自治区', '市']
 const citySuffix = ['自治州', '市', '区', '县', '旗', '盟', '镇']
 
-export default function (chartProps: IChartProps) {
+export default function(chartProps: IChartProps, drillOptions) {
   const {
     chartStyles,
     data,
@@ -482,7 +482,7 @@ export default function (chartProps: IChartProps) {
   return mapOptions
 }
 
-function getProvinceParent (area) {
+function getProvinceParent(area) {
   if (!area.parent) {
     return area
   }
@@ -490,7 +490,7 @@ function getProvinceParent (area) {
   return !parent.parent ? parent : getProvinceParent(parent)
 }
 
-function getProvinceName (name) {
+function getProvinceName(name) {
   provinceSuffix.forEach((ps) => {
     if (name.includes(ps)) {
       name = name.replace(ps, '')
@@ -499,7 +499,7 @@ function getProvinceName (name) {
   return name
 }
 
-function getCityArea (name) {
+function getCityArea(name) {
   const hasSuffix = citySuffix.some((p) => name.includes(p))
   const area = hasSuffix
     ? geoData.find((d) => d.name === name)
@@ -507,7 +507,7 @@ function getCityArea (name) {
   return area
 }
 
-function getProvinceArea (name) {
+function getProvinceArea(name) {
   const hasSuffix = provinceSuffix.some((p) => name.includes(p))
   const area = hasSuffix
     ? geoData.find((d) => d.name === name && !d.parent)
@@ -515,7 +515,7 @@ function getProvinceArea (name) {
   return area
 }
 
-function getPosition (position) {
+function getPosition(position) {
   let positionValue
   switch (position) {
     case 'leftBottom':

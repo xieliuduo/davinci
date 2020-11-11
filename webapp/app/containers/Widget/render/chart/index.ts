@@ -35,7 +35,7 @@ import gauge from './gauge'
 import { EChartOption } from 'echarts'
 import { IChartProps } from '../../components/Chart'
 
-export default function (type, chartProps: IChartProps, drillOptions?: any): EChartOption {
+export default function(type, chartProps: IChartProps, drillOptions?: any): EChartOption {
   switch (type) {
     case 'line': return line(chartProps, drillOptions)
     // @ts-ignore
@@ -48,7 +48,7 @@ export default function (type, chartProps: IChartProps, drillOptions?: any): ECh
     case 'radar': return radar(chartProps)
     case 'sankey': return sankey(chartProps)
     case 'parallel': return parallel(chartProps)
-    case 'map': return map(chartProps)
+    case 'map': return map(chartProps, drillOptions)
     case 'wordCloud': return wordCloud(chartProps)
     case 'waterfall': return waterfall(chartProps)
     case 'doubleYAxis': return doubleYAxis(chartProps, drillOptions)
