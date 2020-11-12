@@ -20,6 +20,7 @@
 
 import { IChartProps } from '../../../components/Chart'
 import { EChartOption } from 'echarts'
+import echarts from 'echarts/lib/echarts'
 import {
   decodeMetricName,
   getTextWidth,
@@ -35,19 +36,21 @@ import {
   getProvinceName,
   getCityArea,
   getProvinceArea,
+
   getVisualMapOptions
 } from './utils'
 import {getMapOption} from './type/map'
 import {getScatterOption} from './type/scatter'
 import {getHeatmapOption} from './type/heatmap'
 import {getLinesOption} from './type/lines'
+
 import {
   safeAddition
 } from 'utils/util'
 
 
 import { getFormattedValue } from '../../../components/Config/Format'
-
+const mapJson = {}
 export default function(chartProps: IChartProps, drillOptions) {
 
   const {
@@ -57,8 +60,8 @@ export default function(chartProps: IChartProps, drillOptions) {
     metrics,
     model
   } = chartProps
-  console.log('chartProps')
-  console.log(chartProps)
+  // console.log('chartProps')
+  // console.log(chartProps)
   const {
     label,
     spec
@@ -78,8 +81,29 @@ export default function(chartProps: IChartProps, drillOptions) {
     linesSpeed,
     symbolType
   } = spec
-
-  const{mapName} = drillOptions
+  const   mapNameHash = {
+    北京: 'beijing',
+    河北: 'hebei',
+    安徽: 'anhui',
+    重庆: 'chongqing',
+    青海: 'qinghai',
+    四川: 'sichuan',
+    内蒙古: 'neimenggu',
+    黑龙江: 'heilongjiang',
+    新疆: 'xinjiang',
+    china: 'china'
+  }
+  const{mapName, mapData} = drillOptions
+  if (mapJson[mapName]) {
+      // console.log('用缓存')
+  } else {
+      // console.log('新加载')
+      const json = require(`assets/json/geoJson/${mapNameHash[mapName]}.json`)
+      if (json) {
+       mapJson[mapName] = json
+       echarts.registerMap(mapName, json)
+      }
+  }
   const tooltip: EChartOption.Tooltip = {
     trigger: 'item',
     formatter: (params: EChartOption.Tooltip.Format) => {
@@ -97,6 +121,10 @@ export default function(chartProps: IChartProps, drillOptions) {
        return tooltipLabels.join('')
     }
   }
+
+
+
+
   const geo = {
           map: mapName,
           zoom: 1,

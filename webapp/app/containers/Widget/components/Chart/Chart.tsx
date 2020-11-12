@@ -58,13 +58,13 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     } = props
     const mapName = this.state.mapName
     const mapData = this.state.mapData
-    if (mapName && mapName !== 'china') {
-      const jsonMap = this.mapNameHash[mapName]
-      const json = require(`assets/json/geoJson/${jsonMap}.json`)
-      if (json) {
-        echarts.registerMap(mapName, json)
-      }
-    }
+    // if (mapName && mapName !== 'china') {
+    //   const jsonMap = this.mapNameHash[mapName]
+    //   const json = require(`assets/json/geoJson/${jsonMap}.json`)
+    //   if (json) {
+    //     echarts.registerMap(mapName, json)
+    //   }
+    // }
     if (renderType === 'loading') {
       return
     }
@@ -88,10 +88,10 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
           return
         }
         if (params.data && params.data.mapLevel === 'district') {
-          const json = require(`assets/json/geoJson/china.json`)
-          if (json) {
-            echarts.registerMap('china', json)
-          }
+          // const json = require(`assets/json/geoJson/china.json`)
+          // if (json) {
+          //   echarts.registerMap('china', json)
+          // }
           this.setState(
             {
               mapName: 'china',
@@ -104,16 +104,16 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
               }
             })
         }
-        // if (!(params.name in this.mapNameHash)) {
-        //   return
-        // }
+       // // if (!(params.name in this.mapNameHash)) {
+       // //   return
+       // // }
         if (params.data && params.data.mapLevel === 'province') {
 
           const jsonMap = this.mapNameHash[params.name]
-          const json = require(`assets/json/geoJson/${jsonMap}.json`)
-          if (json) {
-            echarts.registerMap(params.name, json)
-           }
+          // const json = require(`assets/json/geoJson/${jsonMap}.json`)
+          // if (json) {
+          //   echarts.registerMap(params.name, json)
+          //  }
           this.setState(
             {
               mapName: params.name,
