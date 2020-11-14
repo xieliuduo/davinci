@@ -44,7 +44,7 @@ export class VisualMapSection extends React.PureComponent<IVisualMapSectionProps
     this.props.onChange(prop, value)
   }
 
-  public render () {
+  public render() {
     const { title, config } = this.props
 
     const {

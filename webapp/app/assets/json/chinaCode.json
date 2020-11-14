@@ -1,5 +1,12 @@
 [
     {
+        "id": 1,
+        "label": "全国",
+        "parent": 0,
+        "code": "100000",
+        "children":[]  
+    },
+    {
         "id": 11,
         "label": "北京市",
         "parent": 0,

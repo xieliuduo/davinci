@@ -1,12 +1,11 @@
 import React from 'react'
-import { Row, Col, Checkbox, Select, InputNumber } from 'antd'
+import { Row, Col, Checkbox, Select, InputNumber, Cascader } from 'antd'
 
 import { onSectionChange } from './util'
 import { ISpecConfig } from '../types'
-import { chartLayerTypeOptions, chartSymbolTypeOptions } from '../../constants'
+import { chartLayerTypeOptions, chartSymbolTypeOptions, mapDrillLevelOptions } from '../../constants'
 
 import styles from '../../../Workbench.less'
-
 interface ISpecSectionMapProps {
   spec: ISpecConfig
   isLegendSection: boolean
@@ -14,10 +13,9 @@ interface ISpecSectionMapProps {
   onChange: (value: string | number, propPath: string | string[]) => void
 }
 
-function SpecSectionMap (props: ISpecSectionMapProps) {
+function SpecSectionMap(props: ISpecSectionMapProps) {
   const { spec, isLegendSection, title, onChange } = props
   const { roam, layerType, linesSpeed, symbolType } = spec
-
   return (
     <div className={styles.paneBlock}>
       <h4>{title}</h4>
@@ -33,7 +31,7 @@ function SpecSectionMap (props: ISpecSectionMapProps) {
             <Select
               placeholder="类型"
               className={styles.blockElm}
-              value={layerType} 
+              value={layerType}
               onChange={onSectionChange(onChange, 'layerType')}
             >
               {chartLayerTypeOptions}

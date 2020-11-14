@@ -54,6 +54,8 @@ import SpecSection from './ConfigSections/SpecSection'
 import LabelSection from './ConfigSections/LabelSection'
 import LegendSection from './ConfigSections/LegendSection'
 import VisualMapSection from './ConfigSections/VisualMapSection'
+import MapItemSection from './ConfigSections/MapItemSection'
+import DrillLevelSection from './ConfigSections/DrillLevelSection'
 import ToolboxSection from './ConfigSections/ToolboxSection'
 import DoubleYAxisSection from './ConfigSections/DoubleYAxisSection'
 import AreaSelectSection from './ConfigSections/AreaSelectSection'
@@ -104,6 +106,8 @@ import {
   ControlPanelTypes,
   ControlQueryMode
 } from 'app/components/Control/constants'
+import AreaScpoeSection from './ConfigSections/areaScope'
+import { IAreaScpoe } from './ConfigSections'
 const MenuItem = Menu.Item
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
@@ -219,7 +223,7 @@ export class OperatingPanel extends React.Component<
       mode: 'pivot',
       currentWidgetlibs: widgetlibs['pivot'],
       chartModeSelectedChart: getTable(),
-      selectedTab: 'data',
+      selectedTab: 'style',
       dataParams: Object.entries(getPivot().data).reduce(
         (params: IDataParams, [key, value]) => {
           params[key] = { ...value, items: [] }
@@ -1621,7 +1625,12 @@ export class OperatingPanel extends React.Component<
     }
     this.setWidgetProps(dataParams, styleParams, { renderType })
   }
-
+  private areaScpoeChange = (name) => (value: IAreaScpoe) => {
+    const { dataParams, styleParams } = this.state
+    styleParams[name] = value
+    const renderType: RenderType = 'rerender'
+    this.setWidgetProps(dataParams, styleParams, { renderType })
+  }
   private limitChange = (value) => {
     this.props.onLimitChange(value)
     this.debounceLimitChangeUpdate(value)
@@ -1941,6 +1950,9 @@ export class OperatingPanel extends React.Component<
       label,
       legend,
       visualMap,
+      mapItemStyle,
+      scope,
+      drillLevel,
       toolbox,
       areaSelect,
       scorecard,
@@ -2118,6 +2130,28 @@ export class OperatingPanel extends React.Component<
                   />
                 )
               : null}
+            {scope && (
+              <AreaScpoeSection
+                title="地图范围"
+                config={scope}
+                onChange={this.areaScpoeChange('scope')}
+              />
+            )}
+            {drillLevel && (
+              <DrillLevelSection
+                title="下钻设置"
+                config={drillLevel}
+                onChange={this.styleChange('drillLevel')}
+              />
+            )}
+            {mapItemStyle && (
+              <MapItemSection
+                title="地图区域"
+                config={mapItemStyle}
+                onChange={this.styleChange('mapItemStyle')}
+              />
+            )}
+
             {mapLegendLayerType
               ? null
               : visualMap && (
@@ -2521,7 +2555,7 @@ export class OperatingPanel extends React.Component<
           </div>
           <div className={styles.charts}>
             {currentWidgetlibs.map((c) => (
-              <ChartIndicator 
+              <ChartIndicator
                 key={c.id}
                 chartInfo={c}
                 dimetionsCount={dimetionsCount}

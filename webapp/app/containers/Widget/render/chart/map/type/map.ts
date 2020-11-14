@@ -37,7 +37,7 @@ export function getMapOption(
     const { chartStyles, data, cols, metrics, model } = chartProps
     const { spec } = chartStyles
     const { roam } = spec
-    const { mapName, mapData} = drillOptions
+    const { mapName, mapData } = drillOptions
     let dataTree = {}
 
     const agg = metrics[0].agg
@@ -61,12 +61,12 @@ export function getMapOption(
                 (field) => model[field.name].visualType === 'geoCity'
             )
             if (cityField) {
-                dataTree = getDataByCityField(cityField.name,  valueField, data)
+                dataTree = getDataByCityField(cityField.name, valueField, data)
                 for (const key in dataTree) {
                     if (Object.prototype.hasOwnProperty.call(dataTree, key)) {
                         dataTree[key].value = getAggValueByArr(dataTree[key].children, agg)
                     }
-                 }
+                }
                 return dataTree
             }
             const provinceField = cols.find(
@@ -88,7 +88,7 @@ export function getMapOption(
                 (field) => model[field.name].visualType === 'geoCity'
             )
             if (cityField) {
-                dataTree = getDataByCityFieldForProvince(cityField.name,  valueField, data, mapScope.initData[0])
+                dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, mapScope.initData[0])
                 return dataTree
             }
             return {}
@@ -101,7 +101,8 @@ export function getMapOption(
         'map',
         chartStyles
     )
-    const { tooltip, geo, labelOption } = baseOption
+    const { tooltip, geo, labelOption, itemStyle } = baseOption
+    const mapItem = visualMapOptions.show ? {} : itemStyle
     const seriesData = Object.keys(dataTree).map((key, index) => {
         const { lon, lat, value, mapLevel } = dataTree[key]
         return {
@@ -121,7 +122,8 @@ export function getMapOption(
             type: 'map',
             mapType: mapName,
             roam,
-            labelOption,
+            itemStyle: mapItem,
+            ...labelOption,
             data: seriesData
         }
     }

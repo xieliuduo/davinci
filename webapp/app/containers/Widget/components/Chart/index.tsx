@@ -13,11 +13,11 @@ export interface IChartProps extends IWidgetProps {
 }
 
 export class CombinedChart extends Component<IChartProps, {}> {
-  public shouldComponentUpdate (nextProps: IChartProps) {
+  public shouldComponentUpdate(nextProps: IChartProps) {
     return nextProps.renderType !== 'loading'
   }
 
-  public render () {
+  public render() {
     const { selectedChart } = this.props
 
     switch (selectedChart) {

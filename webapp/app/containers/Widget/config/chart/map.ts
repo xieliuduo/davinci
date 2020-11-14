@@ -39,7 +39,7 @@ const map: IChartInfo = {
   },
   style: {
     label: {
-      showLabel: false,
+      showLabel: true,
       labelPosition: CHART_LABEL_POSITIONS[0].value,
       labelFontFamily: PIVOT_CHART_FONT_FAMILIES[0].value,
       labelFontSize: '12',
@@ -70,6 +70,22 @@ const map: IChartInfo = {
       symbolType: CHART_LINES_SYMBOL_TYPE[0].value,
       linesSpeed: '10',
       mapName: 'china'
+    },
+    drillLevel: {
+      enabled:  true,
+      level: 'province'
+    },
+    scope : {
+      country: '100000',
+      province: '',
+      city: ''
+    },
+    mapItemStyle: {
+      areaColor: '#cccccc',
+      areaColorEmphasis: '#bbbbbb',
+      borderColor: '#666666',
+      borderWidth: 1,
+      borderType: 'solid'
     }
   }
 }

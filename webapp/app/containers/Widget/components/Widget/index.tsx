@@ -25,8 +25,9 @@ import { IScorecardConfig } from '../Workbench/ConfigSections/ScorecardSection'
 import { IGaugeConfig } from '../Workbench/ConfigSections/GaugeSection'
 import { IframeConfig } from '../Workbench/ConfigSections/IframeSection'
 import { ITableConfig } from '../Config/Table'
-import { IRichTextConfig, IBarConfig, IRadarConfig } from '../Workbench/ConfigSections'
+import { IRichTextConfig, IBarConfig, IRadarConfig, IMapItemConfig, IAreaScpoe, IDrillLeavel} from '../Workbench/ConfigSections'
 import { IDoubleYAxisConfig } from '../Workbench/ConfigSections/DoubleYAxisSection'
+
 import { IViewModel } from 'containers/View/types'
 import { IQueryVariableMap } from 'containers/Dashboard/types'
 import { IControl } from 'app/components/Control/types'
@@ -100,7 +101,9 @@ export interface IChartStyles {
   bar?: IBarConfig
   radar?: IRadarConfig
   doubleYAxis?: IDoubleYAxisConfig
-  mapName?: string
+  scope?: IAreaScpoe,
+  mapItemStyle?: IMapItemConfig,
+  IDrillLeavel?: IDrillLeavel
 }
 
 export interface IChartRule {

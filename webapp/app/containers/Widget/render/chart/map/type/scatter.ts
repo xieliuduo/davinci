@@ -33,7 +33,7 @@ import { getSymbolSize } from '../../util'
 export function getScatterOption(chartProps: IChartProps, drillOptions, baseOption) {
 
   const { chartStyles, data, cols, metrics, model } = chartProps
-  const { spec } = chartStyles
+  const { spec , mapItemStyle} = chartStyles
   const { roam } = spec
   const { mapName, mapData } = drillOptions
   let dataTree = {}
@@ -109,7 +109,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
         name: '气泡图',
         type: 'scatter',
         coordinateSystem: 'geo',
-        labelOption,
+        ...labelOption,
         ...optionsType,
         data: Object.keys(dataTree).map((key, index) => {
           const { lon, lat, value, mapLevel } = dataTree[key]
@@ -132,6 +132,17 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
           },
           emphasis: {
             show: false
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderType: mapItemStyle.borderType,
+            areaColor: mapItemStyle.areaColor,
+            borderColor: mapItemStyle.borderColor,
+            borderWidth: mapItemStyle.borderWidth
+          },
+          emphasis: {
+            areaColor: mapItemStyle.areaColorEmphasis
           }
         },
         labelOption,
