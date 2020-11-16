@@ -1,6 +1,5 @@
 import React from 'react'
 import { Row, Col, Select, Checkbox } from 'antd'
-const Option = Select.Option
 import { mapDrillLevelOptions} from './constants'
 const styles = require('../Workbench.less')
 import { IDrillLeavel } from './'

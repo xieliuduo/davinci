@@ -71,7 +71,7 @@ export default function(chartProps: IChartProps, drillOptions) {
     linesSpeed,
     symbolType
   } = spec
-  const{mapName} =drillOptions
+  const{mapName} = drillOptions
   const tooltip: EChartOption.Tooltip = {
     trigger: 'item',
     formatter: (params: EChartOption.Tooltip.Format) => {
@@ -118,8 +118,6 @@ export default function(chartProps: IChartProps, drillOptions) {
 
   data.forEach((record) => {
     let areaVal
-    const group = []
-
     const value = record[`${agg}(${metricName})`]
     min = Math.min(min, value)
     max = Math.max(max, value)
@@ -482,7 +480,7 @@ export default function(chartProps: IChartProps, drillOptions) {
   return mapOptions
 }
 
-function getProvinceParent (area) {
+function getProvinceParent(area) {
   if (!area.parent) {
     return area
   }
@@ -490,7 +488,7 @@ function getProvinceParent (area) {
   return !parent.parent ? parent : getProvinceParent(parent)
 }
 
-function getProvinceName (name) {
+function getProvinceName(name) {
   provinceSuffix.forEach((ps) => {
     if (name.includes(ps)) {
       name = name.replace(ps, '')
@@ -499,7 +497,7 @@ function getProvinceName (name) {
   return name
 }
 
-function getCityArea (name) {
+function getCityArea(name) {
   const hasSuffix = citySuffix.some((p) => name.includes(p))
   const area = hasSuffix
     ? geoData.find((d) => d.name === name)
@@ -507,7 +505,7 @@ function getCityArea (name) {
   return area
 }
 
-function getProvinceArea (name) {
+function getProvinceArea(name) {
   const hasSuffix = provinceSuffix.some((p) => name.includes(p))
   const area = hasSuffix
     ? geoData.find((d) => d.name === name && !d.parent)
@@ -515,7 +513,7 @@ function getProvinceArea (name) {
   return area
 }
 
-function getPosition (position) {
+function getPosition(position) {
   let positionValue
   switch (position) {
     case 'leftBottom':

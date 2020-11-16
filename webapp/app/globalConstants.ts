@@ -154,8 +154,7 @@ export const CHART_LAYER_TYPES = [
 ]
 export const MAP_DRILL_LEVELS = [
   { name: '下钻到省', value: 'province' },
-  { name: '下钻到市', value: 'city' },
-  { name: '下钻到区', value: 'district' }
+  { name: '下钻到市', value: 'city' }
 ]
 export const CHART_LINES_SYMBOL_TYPE = [
   {name: '圆形', value: 'circle'},

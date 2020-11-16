@@ -18,6 +18,7 @@
  * limitations under the License.
  * >>
  */
+import { IChartProps } from '../../../components/Chart'
 import geoData from 'assets/js/geo.js'
 import {
   DEFAULT_ECHARTS_THEME
@@ -254,3 +255,4 @@ export function getDataByCityFieldForProvince(cityField: string, valueField: str
         })
         return dataTree
     }
+

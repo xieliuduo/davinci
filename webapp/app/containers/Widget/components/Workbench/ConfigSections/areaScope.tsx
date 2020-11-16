@@ -1,6 +1,6 @@
 import React from 'react'
 import { Row, Col, Select, Cascader } from 'antd'
-import mapCodeJson from 'assets/json/chinaCode.json'
+import mapCodeJson from 'assets/js/pcl'
 const styles = require('../Workbench.less')
 import { IAreaScpoe } from './'
 
@@ -40,7 +40,7 @@ export class AreaScpoeSection extends React.PureComponent<
                                 defaultValue={[config.country, config.province, config.city]}
                                 options={mapCodeJson}
                                 onChange={this.onSectionChange}
-                                fieldNames={{ label: 'label', value: 'code' }}
+                                fieldNames={{ label: 'label', value: 'value' }}
                             />
                         </Col>
                     </Row>
