@@ -43,7 +43,7 @@ const mapJson = {}
 export default function(chartProps: IChartProps, drillOptions) {
 
   const { chartStyles, data, cols, metrics, model } = chartProps
-  const { label, spec, mapItemStyle, drillLevel, scope } = chartStyles
+  const { label, spec, mapItemStyle,  scope } = chartStyles
   // const initmapName = scope.city ? scope.city : scope.province ? scope.province : scope.country
   // const [mapName, setmapName] = useState(initmapName)
   const {
@@ -75,17 +75,20 @@ export default function(chartProps: IChartProps, drillOptions) {
     内蒙古: 'neimenggu',
     黑龙江: 'heilongjiang',
     新疆: 'xinjiang',
-    china: '100000'
+    1000000: '100000'
   }
-  const {mapName, mapData } = drillOptions
-  if (mapJson[mapName]) {
-    // console.log('用缓存')
+  const {mapData } = drillOptions
+
+  if (mapJson[mapData.currentCode]) {
+    console.log('用缓存')
+    console.log(mapData.currentCode)
   } else {
-    // console.log('新加载')
-    const json = require(`assets/json/geoJson/${mapNameHash[mapName]}.json`)
-    if (json) {
-      mapJson[mapName] = json
-      echarts.registerMap(mapName, json)
+     console.log('新加载')
+     console.log(mapData.currentCode)
+     const json = require(`assets/json/geoJson/${mapData.currentCode}.json`)
+     if (json) {
+      mapJson[mapData.currentCode] = json
+      echarts.registerMap(mapData.currentCode, json)
     }
   }
   const tooltip: EChartOption.Tooltip = {
@@ -108,7 +111,7 @@ export default function(chartProps: IChartProps, drillOptions) {
   }
 
   const geo = {
-    map: mapName,
+    map: mapData.currentCode,
     zoom: 1,
     itemStyle,
     roam
@@ -131,6 +134,7 @@ export default function(chartProps: IChartProps, drillOptions) {
     labelOption,
     itemStyle
   }
+
   let options = {}
   switch (layerType) {
     case 'map':
@@ -149,5 +153,6 @@ export default function(chartProps: IChartProps, drillOptions) {
       throw Error('Unable to find layerType')
       break
   }
+  console.log('options', options)
   return options
 }

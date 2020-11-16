@@ -2131,7 +2131,7 @@ export class OperatingPanel extends React.Component<
                 )
               : null}
             {scope && (
-              <AreaScpoeSection
+              <AreaScpoeSection 
                 title="地图范围"
                 config={scope}
                 onChange={this.areaScpoeChange('scope')}

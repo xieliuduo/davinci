@@ -35,23 +35,20 @@ export function getMapOption(
     baseOption
 ) {
     const { chartStyles, data, cols, metrics, model } = chartProps
-    const { spec } = chartStyles
+    const { spec , scope} = chartStyles
     const { roam } = spec
-    const { mapName, mapData } = drillOptions
+    const { mapData } = drillOptions
+    console.log('drillOptions mapData', mapData)
+
     let dataTree = {}
 
     const agg = metrics[0].agg
     const metricName = decodeMetricName(metrics[0].name)
     const valueField = `${agg}(${metricName})`
-    const mapScope = mapData.mapScope
-    // const mapScope = {
-    //     range: 'province',
-    //     initData: ['china']
-    // }
     dataTree = getDataTree()
     function getDataTree() {
         let dataTree
-        if (mapScope.range === 'country') {
+        if (mapData.currentLevel === 'country') {
             //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
             //  if (districtField) {
             //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -78,7 +75,7 @@ export function getMapOption(
             }
             return {}
         }
-        if (mapScope.range === 'province') {
+        if (mapData.currentLevel === 'province') {
             //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
             //  if (districtField) {
             //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -88,7 +85,7 @@ export function getMapOption(
                 (field) => model[field.name].visualType === 'geoCity'
             )
             if (cityField) {
-                dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, mapScope.initData[0])
+                dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, '河北')
                 return dataTree
             }
             return {}
@@ -120,7 +117,7 @@ export function getMapOption(
         series: {
             name: '地图',
             type: 'map',
-            mapType: mapName,
+            mapType: mapData.currentCode,
             roam,
             itemStyle: mapItem,
             ...labelOption,

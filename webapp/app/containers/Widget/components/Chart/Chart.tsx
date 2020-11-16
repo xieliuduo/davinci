@@ -8,47 +8,52 @@ const styles = require('./Chart.less')
 
 interface IChartStates {
   seriesItems: string[],
-  mapName: string,
-  mapData: object
 }
 export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   private asyncEmitTimer: NodeJS.Timer | null = null
   private container: HTMLDivElement = null
   private instance: ECharts
+  private mapData = {
+    currentCode: '100000',
+    currentLevel: 'country'
+  }
   constructor(props) {
     super(props)
     this.state = {
-      mapName: 'china',
-      mapData: {
-        mapName: 'china',
-        mapScope: {
-          range: 'country',
-          initData: ['china']
-        }
-      },
       seriesItems: []
     }
   }
-  public  mapNameHash = {
-    北京: 'beijing',
-    河北: 'hebei',
-    安徽: 'anhui',
-    重庆: 'chongqing',
-    青海: 'qinghai',
-    四川: 'sichuan',
-    内蒙古: 'neimenggu',
-    黑龙江: 'heilongjiang',
-    新疆: 'xinjiang'
-  }
   public componentDidMount() {
-    this.renderChart(this.props)
+    this.mapData = this.getMapData(this.props)
+    this.renderChart(this.props, this.mapData)
   }
 
   public componentDidUpdate() {
-    this.renderChart(this.props)
+    console.log('componentDidUpdate')
+    this.mapData = this.getMapData(this.props)
+    this.renderChart(this.props, this.mapData)
   }
+  private getMapData = (props: IChartProps) => {
+    const mapData = { currentLevel: '', currentCode: ''}
+    const { selectedChart, chartStyles } = props
+    if (selectedChart !== 7) {
+      return
+    }
+    const { scope } = chartStyles
 
-  private renderChart = (props: IChartProps) => {
+    if (scope.city) {
+      mapData.currentLevel = 'city'
+      mapData.currentCode = scope.city
+    } else if (scope.province) {
+      mapData.currentLevel = 'province'
+      mapData.currentCode = scope.province
+    } else if (scope.country) {
+      mapData.currentLevel = 'country'
+      mapData.currentCode = scope.country
+    }
+    return mapData
+  }
+  private renderChart = (props: IChartProps, mapData) => {
     const {
       selectedChart,
       renderType,
@@ -56,15 +61,6 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
       isDrilling,
       onError
     } = props
-    const mapName = this.state.mapName
-    const mapData = this.state.mapData
-    // if (mapName && mapName !== 'china') {
-    //   const jsonMap = this.mapNameHash[mapName]
-    //   const json = require(`assets/json/geoJson/${jsonMap}.json`)
-    //   if (json) {
-    //     echarts.registerMap(mapName, json)
-    //   }
-    // }
     if (renderType === 'loading') {
       return
     }
@@ -81,73 +77,51 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     }
     try {
       this.instance.off('click')
+      let drillOptions = {}
+      if (selectedChart === 7) {
+        drillOptions = {
+          instance: this.instance,
+          isDrilling,
+          mapData
+        }
+      } else {
+        drillOptions = {
+          instance: this.instance,
+          isDrilling,
+          mapData,
+          getDataDrillDetail,
+          selectedItems: this.props.selectedItems,
+          callback: (seriesData) => {
+            this.instance.on('click', (params) => {
+              this.collectSelectedItems(params, seriesData)
+            })
+          }
+        }
+      }
+
       this.instance.on('click', (params) => {
-        console.log('click', 123)
-        console.log('click', params)
-        if (!params || !params.data) {
-          return
-        }
-        if (params.data && params.data.mapLevel === 'district') {
-          // const json = require(`assets/json/geoJson/china.json`)
-          // if (json) {
-          //   echarts.registerMap('china', json)
-          // }
-          this.setState(
-            {
-              mapName: 'china',
-              mapData: {
-                mapName: 'china',
-                mapScope: {
-                  range: 'country',
-                  initData: ['china']
-                }
-              }
-            })
-        }
-       // // if (!(params.name in this.mapNameHash)) {
-       // //   return
-       // // }
-        if (params.data && params.data.mapLevel === 'province') {
 
-          const jsonMap = this.mapNameHash[params.name]
-          // const json = require(`assets/json/geoJson/${jsonMap}.json`)
-          // if (json) {
-          //   echarts.registerMap(params.name, json)
-          //  }
-          this.setState(
-            {
-              mapName: params.name,
-              mapData: {
-                mapName: params.name,
-                mapScope: {
-                  range: 'province',
-                  initData: [params.name]
-                }
-              }
-            })
-        }
-        this.collectSelectedItems(params)
-      })
-
-      this.instance.setOption(
-        chartOptionGenerator(
-          chartlibs.find((cl) => cl.id === selectedChart).name,
-          props,
-          {
-            instance: this.instance,
-            isDrilling,
-            getDataDrillDetail,
-            selectedItems: this.props.selectedItems,
-            mapName,
-            mapData,
-            callback: (seriesData) => {
-              this.instance.off('click')
-              this.instance.on('click', (params) => {
-                this.collectSelectedItems(params, seriesData)
-              })
+        if (selectedChart === 7) {
+          if (params.name) {
+            console.log('7')
+            if (params.name === '河北') {
+              mapData.currentLevel = 'province'
+              mapData.currentCode = '130000'
+              this.renderChart(this.props, mapData)
             }
           }
-        )
+        } else {
+          this.collectSelectedItems(params)
+        }
+      })
+
+      const option = chartOptionGenerator(
+        chartlibs.find((cl) => cl.id === selectedChart).name,
+        props,
+        drillOptions
+      )
+      this.instance.setOption(
+        option
       )
       this.instance.resize()
     } catch (error) {
