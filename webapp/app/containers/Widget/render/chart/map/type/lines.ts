@@ -20,17 +20,15 @@
 
 import { IChartProps } from '../../../../components/Chart'
 import { EChartOption } from 'echarts'
+import geoData from 'assets/js/geo.js'
 import { decodeMetricName } from '../../../../components/util'
 import {
-  getProvinceParent,
-  getProvinceName,
-  getCityArea,
-  getProvinceArea,
   getVisualMapOptions
 } from '../utils'
 import { getLegendOption, getLabelOption } from '../../util'
+const provinceSuffix = ['省', '市', '特别行政区', '维吾尔自治区', '回族自治区', '壮族自治区', '自治区', '行政区']
+const citySuffix = ['自治州', '市', '区', '县', '旗', '盟', '镇']
 export function getLinesOption(chartProps: IChartProps, drillOptions, baseOption) {
-
   const { chartStyles, data, cols, metrics, model } = chartProps
   const { label, spec } = chartStyles
   const {
@@ -167,4 +165,36 @@ export function getLinesOption(chartProps: IChartProps, drillOptions, baseOption
     ...visualMapOptions,
     series: linesSeries
   }
+}
+function getProvinceParent(area) {
+  if (!area.parent) {
+    return area
+  }
+  const parent = geoData.find((g) => g.id === area.parent)
+  return !parent.parent ? parent : getProvinceParent(parent)
+}
+
+function getProvinceName(name) {
+  provinceSuffix.forEach((ps) => {
+    if (name.includes(ps)) {
+      name = name.replace(ps, '')
+    }
+  })
+  return name
+}
+
+function getCityArea(name) {
+  const hasSuffix = citySuffix.some((p) => name.includes(p))
+  const area = hasSuffix
+    ? geoData.find((d) => d.name === name)
+    : geoData.find((d) => d.name.includes(name))
+  return area
+}
+
+function getProvinceArea(name) {
+  const hasSuffix = provinceSuffix.some((p) => name.includes(p))
+  const area = hasSuffix
+    ? geoData.find((d) => d.name === name && !d.parent)
+    : geoData.find((d) => d.name.includes(name) && !d.parent)
+  return area
 }

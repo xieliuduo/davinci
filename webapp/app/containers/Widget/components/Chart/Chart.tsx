@@ -13,10 +13,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   private asyncEmitTimer: NodeJS.Timer | null = null
   private container: HTMLDivElement = null
   private instance: ECharts
-  private mapData = {
-    currentCode: '100000',
-    currentLevel: 'country'
-  }
+  private mapData = {}
   constructor(props) {
     super(props)
     this.state = {
@@ -34,22 +31,20 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     this.renderChart(this.props, this.mapData)
   }
   private getMapData = (props: IChartProps) => {
-    const mapData = { currentLevel: '', currentCode: ''}
+    const mapData = { mapName: 'china', mapLevel: 'country', currentCode: 'china'}
     const { selectedChart, chartStyles } = props
     if (selectedChart !== 7) {
       return
     }
     const { scope } = chartStyles
-
-    if (scope.city) {
-      mapData.currentLevel = 'city'
-      mapData.currentCode = scope.city
-    } else if (scope.province) {
-      mapData.currentLevel = 'province'
-      mapData.currentCode = scope.province
-    } else if (scope.country) {
-      mapData.currentLevel = 'country'
-      mapData.currentCode = scope.country
+    // 由小到大
+    const levels = ['city', 'province', 'country']
+    for (let i = 0; i < levels.length; i++) {
+      if (scope[levels[i]]) {
+        mapData.mapLevel = levels[i]
+        mapData.currentCode = scope[levels[i]]
+        break
+      }
     }
     return mapData
   }
@@ -77,44 +72,41 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     }
     try {
       this.instance.off('click')
-      let drillOptions = {}
-      if (selectedChart === 7) {
-        drillOptions = {
-          instance: this.instance,
-          isDrilling,
-          mapData
-        }
-      } else {
-        drillOptions = {
-          instance: this.instance,
-          isDrilling,
-          mapData,
-          getDataDrillDetail,
-          selectedItems: this.props.selectedItems,
-          callback: (seriesData) => {
-            this.instance.on('click', (params) => {
-              this.collectSelectedItems(params, seriesData)
-            })
-          }
-        }
-      }
-
       this.instance.on('click', (params) => {
-
         if (selectedChart === 7) {
-          if (params.name) {
+          if (params && params.data) {
             console.log('7')
-            if (params.name === '河北') {
-              mapData.currentLevel = 'province'
-              mapData.currentCode = '130000'
-              this.renderChart(this.props, mapData)
+            // curMapCode: "130000"
+            // curMapName: "河北省"
+            // mapLevel: "country"
+            // name: "河北"
+            console.log(params)
+            if (params.data) {
+              mapData.mapLevel = params.data.mapLevel
+              mapData.currentCode = params.data.curMapCode
+              mapData.mapName = params.data.curMapName
+              this.renderChart(props, mapData)
+            } else {
+              mapData = this.getMapData(props)
+              this.renderChart(props, mapData)
             }
           }
         } else {
           this.collectSelectedItems(params)
         }
       })
-
+      const drillOptions = {
+        instance: this.instance,
+        isDrilling,
+        mapData,
+        getDataDrillDetail,
+        selectedItems: this.props.selectedItems,
+        callback: (seriesData) => {
+          this.instance.on('click', (params) => {
+            this.collectSelectedItems(params, seriesData)
+          })
+        }
+      }
       const option = chartOptionGenerator(
         chartlibs.find((cl) => cl.id === selectedChart).name,
         props,
@@ -151,14 +143,13 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     } = this.props
 
     const { seriesItems } = this.state
-
+    if (selectedChart === 7) {
+      return
+    }
     let selectedItems = []
     let series = []
     if (this.props.selectedItems && this.props.selectedItems.length) {
       selectedItems = [...this.props.selectedItems]
-    }
-    if (selectedChart === 7) {
-      this.setState({ seriesItems: series })
     }
     let dataIndex = params.dataIndex
     if (selectedChart === 4) {

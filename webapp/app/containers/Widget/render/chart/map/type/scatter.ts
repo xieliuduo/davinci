@@ -35,7 +35,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
   const { chartStyles, data, cols, metrics, model } = chartProps
   const { spec , mapItemStyle} = chartStyles
   const { roam } = spec
-  const { mapName, mapData } = drillOptions
+  const {mapData } = drillOptions
   let dataTree = {}
 
   const agg = metrics[0].agg
@@ -49,7 +49,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
   dataTree = getDataTree()
   function getDataTree() {
     let dataTree
-    if (mapScope.range === 'country') {
+    if (mapData.mapLevel === 'country') {
       //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
       //  if (districtField) {
       //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -76,7 +76,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
       }
       return {}
     }
-    if (mapScope.range === 'province') {
+    if (mapData.mapLevel === 'province') {
       //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
       //  if (districtField) {
       //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -86,7 +86,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
         (field) => model[field.name].visualType === 'geoCity'
       )
       if (cityField) {
-        dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, mapScope.initData[0])
+        dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, '河北')
         return dataTree
       }
       return {}
@@ -123,7 +123,7 @@ export function getScatterOption(chartProps: IChartProps, drillOptions, baseOpti
       },
       {
         type: 'map',
-        map: mapName,
+        map: mapData.currentCode,
         geoIndex: 0,
         roam,
         label: {

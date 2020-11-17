@@ -1,8 +1,34 @@
-import React from 'react'
-import { Row, Col, Select, Cascader } from 'antd'
-import mapCodeJson from 'assets/js/pcl'
+import React from 'react'  
+import { Row, Col, Cascader } from 'antd'
+// import mapCodeJson from 'assets/js/pcl'
+import areas from 'assets/js/areas'
+import citys from 'assets/js/citys'
+import provinces from 'assets/js/provinces'
 const styles = require('../Workbench.less')
-import { IAreaScpoe } from './'
+import { IAreaScpoe } from '.'
+ 
+// 如果下钻到区县可以打开此处
+// areas.forEach(area=>{
+//     const city = citys.find(city=>city.value==area.cityCode)
+//     if (city){
+//         city.children.push(area)
+//     }
+// })
+citys.forEach(city => {
+    const province = provinces.find(province => province.value == city.provinceCode)
+    if (province) {
+        province.children.push(city)
+    }
+})
+const mapCodeJson = [
+    {
+        label: '中国',
+        value: "china",
+        lon: 117.21081309155,
+        lat: 39.14392990331,
+        children: provinces
+    }
+]
 
 interface IAreaScpoeSectionProps {
     title: string
@@ -15,7 +41,7 @@ export class AreaScpoeSection extends React.PureComponent<
     {}
     > {
     private onSectionChange = (value) => {
-        const  scpoeValue = {
+        const scpoeValue = {
             country: value[0],
             province: value[1] || '',
             city: value[2] || ''

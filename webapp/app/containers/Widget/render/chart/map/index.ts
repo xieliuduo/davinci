@@ -85,7 +85,9 @@ export default function(chartProps: IChartProps, drillOptions) {
   } else {
      console.log('新加载')
      console.log(mapData.currentCode)
+
      const json = require(`assets/json/geoJson/${mapData.currentCode}.json`)
+
      if (json) {
       mapJson[mapData.currentCode] = json
       echarts.registerMap(mapData.currentCode, json)

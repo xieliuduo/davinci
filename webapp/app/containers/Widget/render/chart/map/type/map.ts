@@ -27,6 +27,7 @@ import {
     getMinMaxByDataTree,
     getDataByProvinceField,
     getDataByCityField,
+    newGetData,
     getDataByCityFieldForProvince
 } from '../utils'
 export function getMapOption(
@@ -35,20 +36,36 @@ export function getMapOption(
     baseOption
 ) {
     const { chartStyles, data, cols, metrics, model } = chartProps
-    const { spec , scope} = chartStyles
+    const { spec} = chartStyles
     const { roam } = spec
     const { mapData } = drillOptions
-    console.log('drillOptions mapData', mapData)
+    console.log('chartProps', chartProps)
+
 
     let dataTree = {}
 
     const agg = metrics[0].agg
     const metricName = decodeMetricName(metrics[0].name)
     const valueField = `${agg}(${metricName})`
-    dataTree = getDataTree()
+    const fields = {
+        provinceField: '',
+        cityField: '',
+        areaField: ''
+    }
+    cols.forEach((col) => {
+        if (model[col.name].visualType === 'geoProvince') {
+            fields.provinceField = col.name
+        }
+        if (model[col.name].visualType === 'geoCity') {
+            fields.cityField = col.name
+        }
+
+    })
+    dataTree = newGetData(fields, mapData, valueField, data)
+    // dataTree = getDataTree()
     function getDataTree() {
         let dataTree
-        if (mapData.currentLevel === 'country') {
+        if (mapData.mapLevel === 'country') {
             //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
             //  if (districtField) {
             //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -58,6 +75,7 @@ export function getMapOption(
                 (field) => model[field.name].visualType === 'geoCity'
             )
             if (cityField) {
+                // like (city,agg(sum),data[])
                 dataTree = getDataByCityField(cityField.name, valueField, data)
                 for (const key in dataTree) {
                     if (Object.prototype.hasOwnProperty.call(dataTree, key)) {
@@ -70,12 +88,13 @@ export function getMapOption(
                 (field) => model[field.name].visualType === 'geoProvince'
             )
             if (provinceField) {
+                // like (province,agg(sum),data[])
                 dataTree = getDataByProvinceField(provinceField.name, valueField, data)
                 return dataTree
             }
             return {}
         }
-        if (mapData.currentLevel === 'province') {
+        if (mapData.mapLevel === 'province') {
             //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
             //  if (districtField) {
             //      dataTree = getDataByDistrictField(provinceField.name, data)
@@ -101,16 +120,20 @@ export function getMapOption(
     const { tooltip, geo, labelOption, itemStyle } = baseOption
     const mapItem = visualMapOptions.show ? {} : itemStyle
     const seriesData = Object.keys(dataTree).map((key, index) => {
-        const { lon, lat, value, mapLevel } = dataTree[key]
+        const { lon, lat, value, mapLevel, curMapCode, curMapName  } = dataTree[key]
         return {
             name: key,
             value: [lon, lat, value],
-            mapLevel
+            mapLevel,
+            curMapCode,
+            curMapName,
+            children: []
         }
     })
     console.log('data', data)
     console.log('dataTree', dataTree)
     console.log('seriesData', seriesData)
+    localStorage.setItem('NewseriesData', JSON.stringify(seriesData))
     return {
         tooltip,
         ...visualMapOptions,
