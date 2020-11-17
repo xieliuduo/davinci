@@ -39,7 +39,7 @@ export class DrillLevelSection extends React.PureComponent<
                 checked={enabled}
                 onChange={this.checkboxChange('enabled')}
               >
-                开始下钻
+                开启下钻
               </Checkbox>
             </Col>
             <Col span={12}>

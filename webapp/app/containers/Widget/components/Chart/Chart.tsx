@@ -4,8 +4,8 @@ import chartlibs from '../../config/chart'
 import echarts from 'echarts/lib/echarts'
 import { ECharts } from 'echarts'
 import chartOptionGenerator from '../../render/chart'
-const styles = require('./Chart.less')
-
+const   styles = require('./Chart.less')
+const   GeoLevels = ['city', 'province', 'country']
 interface IChartStates {
   seriesItems: string[],
 }
@@ -26,23 +26,23 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   }
 
   public componentDidUpdate() {
-    console.log('componentDidUpdate')
     this.mapData = this.getMapData(this.props)
     this.renderChart(this.props, this.mapData)
   }
   private getMapData = (props: IChartProps) => {
-    const mapData = { mapName: 'china', mapLevel: 'country', currentCode: 'china'}
+    const mapData = { mapLevel: 'country', currentCode: 'china', drillEnable: false, limitLevel: 'province'}
     const { selectedChart, chartStyles } = props
     if (selectedChart !== 7) {
       return
     }
-    const { scope } = chartStyles
+    const { scope, drillLevel } = chartStyles
+    mapData.limitLevel = drillLevel.level
+    mapData.drillEnable = drillLevel.enabled
     // 由小到大
-    const levels = ['city', 'province', 'country']
-    for (let i = 0; i < levels.length; i++) {
-      if (scope[levels[i]]) {
-        mapData.mapLevel = levels[i]
-        mapData.currentCode = scope[levels[i]]
+    for (let i = 0; i < GeoLevels.length; i++) {
+      if (scope[GeoLevels[i]]) {
+        mapData.mapLevel = GeoLevels[i]
+        mapData.currentCode = scope[GeoLevels[i]]
         break
       }
     }
@@ -73,23 +73,27 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     try {
       this.instance.off('click')
       this.instance.on('click', (params) => {
+        // 如果是 地图 chartid =7
+        debugger
+        console.log('params', params)
+
         if (selectedChart === 7) {
           if (params && params.data) {
-            console.log('7')
-            // curMapCode: "130000"
-            // curMapName: "河北省"
-            // mapLevel: "country"
-            // name: "河北"
-            console.log(params)
-            if (params.data) {
-              mapData.mapLevel = params.data.mapLevel
-              mapData.currentCode = params.data.curMapCode
-              mapData.mapName = params.data.curMapName
+            mapData = this.getMapData(props)
+            if (!params.data) {
               this.renderChart(props, mapData)
-            } else {
-              mapData = this.getMapData(props)
-              this.renderChart(props, mapData)
+              return
             }
+            const index = GeoLevels.indexOf(params.data.mapLevel)
+            const limitIndex = GeoLevels.indexOf(mapData.limitLevel)
+            if (!(mapData.drillEnable && index >= limitIndex)) {
+              this.renderChart(props, mapData)
+              return
+            }
+            mapData.mapLevel = params.data.mapLevel
+            mapData.currentCode = params.data.curMapCode
+            mapData.mapName = params.data.curMapName
+            this.renderChart(props, mapData)
           }
         } else {
           this.collectSelectedItems(params)

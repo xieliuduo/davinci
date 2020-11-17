@@ -17,35 +17,27 @@
  * limitations under the License.
  * >>
  */
-import { useState } from 'react'
+
 import { IChartProps } from '../../../components/Chart'
 import { EChartOption } from 'echarts'
 import echarts from 'echarts/lib/echarts'
+
+
+import { decodeMetricName } from '../../../components/util'
 import {
-  decodeMetricName,
-  getTextWidth,
-  getSizeRate
-} from '../../../components/util'
-import { getLegendOption, getLabelOption, getSymbolSize } from '../util'
-import {
-  getProvinceParent,
-  getProvinceName,
-  getCityArea,
-  getProvinceArea,
-  getVisualMapOptions
+    getMinMaxByDataTree,
+    getChartData
 } from './utils'
+
 import { getMapOption } from './type/map'
 import { getScatterOption } from './type/scatter'
 import { getHeatmapOption } from './type/heatmap'
 import { getLinesOption } from './type/lines'
 import { getFormattedValue } from '../../../components/Config/Format'
-const mapJson = {}
+const mapJson = {} // map 地图 ID缓存
 export default function(chartProps: IChartProps, drillOptions) {
-
   const { chartStyles, data, cols, metrics, model } = chartProps
   const { label, spec, mapItemStyle,  scope } = chartStyles
-  // const initmapName = scope.city ? scope.city : scope.province ? scope.province : scope.country
-  // const [mapName, setmapName] = useState(initmapName)
   const {
     labelColor,
     labelFontFamily,
@@ -65,34 +57,42 @@ export default function(chartProps: IChartProps, drillOptions) {
           }
     }
   const { layerType, roam, linesSpeed, symbolType } = spec
-  const mapNameHash = {
-    北京: 'beijing',
-    河北: '130000',
-    安徽: 'anhui',
-    重庆: 'chongqing',
-    青海: 'qinghai',
-    四川: 'sichuan',
-    内蒙古: 'neimenggu',
-    黑龙江: 'heilongjiang',
-    新疆: 'xinjiang',
-    1000000: '100000'
-  }
+
   const {mapData } = drillOptions
 
   if (mapJson[mapData.currentCode]) {
-    console.log('用缓存')
     console.log(mapData.currentCode)
   } else {
-     console.log('新加载')
-     console.log(mapData.currentCode)
-
      const json = require(`assets/json/geoJson/${mapData.currentCode}.json`)
-
      if (json) {
       mapJson[mapData.currentCode] = json
       echarts.registerMap(mapData.currentCode, json)
     }
   }
+  let dataTree = {}
+  const agg = metrics[0].agg
+  const metricName = decodeMetricName(metrics[0].name)
+  const valueField = `${agg}(${metricName})`
+  const fields = {
+        provinceField: '',
+        cityField: '',
+        areaField: ''
+    }
+  cols.forEach((col) => {
+        if (model[col.name].visualType === 'geoProvince') {
+            fields.provinceField = col.name
+        }
+        if (model[col.name].visualType === 'geoCity') {
+            fields.cityField = col.name
+        }
+
+    })
+  dataTree = getChartData(fields, mapData, valueField, data, agg)
+  const { min = 0, max = 0 } = getMinMaxByDataTree(dataTree)
+
+
+
+    // ===
   const tooltip: EChartOption.Tooltip = {
     trigger: 'item',
     formatter: (params: EChartOption.Tooltip.Format) => {
@@ -134,7 +134,10 @@ export default function(chartProps: IChartProps, drillOptions) {
     tooltip,
     geo,
     labelOption,
-    itemStyle
+    itemStyle,
+    dataTree,
+    min,
+    max
   }
 
   let options = {}

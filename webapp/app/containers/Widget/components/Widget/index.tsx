@@ -103,7 +103,7 @@ export interface IChartStyles {
   doubleYAxis?: IDoubleYAxisConfig
   scope?: IAreaScpoe,
   mapItemStyle?: IMapItemConfig,
-  IDrillLeavel?: IDrillLeavel
+  drillLevel?: IDrillLeavel
 }
 
 export interface IChartRule {

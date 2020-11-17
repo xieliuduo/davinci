@@ -20,97 +20,20 @@
 
 import { IChartProps } from '../../../../components/Chart'
 import { EChartOption } from 'echarts'
-import { decodeMetricName } from '../../../../components/util'
 import {
-    getVisualMapOptions,
-    getAggValueByArr,
-    getMinMaxByDataTree,
-    getDataByProvinceField,
-    getDataByCityField,
-    newGetData,
-    getDataByCityFieldForProvince
+    getVisualMapOptions
+
 } from '../utils'
 export function getMapOption(
     chartProps: IChartProps,
     drillOptions,
     baseOption
 ) {
-    const { chartStyles, data, cols, metrics, model } = chartProps
+    const { chartStyles } = chartProps
     const { spec} = chartStyles
     const { roam } = spec
     const { mapData } = drillOptions
-    console.log('chartProps', chartProps)
-
-
-    let dataTree = {}
-
-    const agg = metrics[0].agg
-    const metricName = decodeMetricName(metrics[0].name)
-    const valueField = `${agg}(${metricName})`
-    const fields = {
-        provinceField: '',
-        cityField: '',
-        areaField: ''
-    }
-    cols.forEach((col) => {
-        if (model[col.name].visualType === 'geoProvince') {
-            fields.provinceField = col.name
-        }
-        if (model[col.name].visualType === 'geoCity') {
-            fields.cityField = col.name
-        }
-
-    })
-    dataTree = newGetData(fields, mapData, valueField, data)
-    // dataTree = getDataTree()
-    function getDataTree() {
-        let dataTree
-        if (mapData.mapLevel === 'country') {
-            //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
-            //  if (districtField) {
-            //      dataTree = getDataByDistrictField(provinceField.name, data)
-            //      return dataTree
-            //  }
-            const cityField = cols.find(
-                (field) => model[field.name].visualType === 'geoCity'
-            )
-            if (cityField) {
-                // like (city,agg(sum),data[])
-                dataTree = getDataByCityField(cityField.name, valueField, data)
-                for (const key in dataTree) {
-                    if (Object.prototype.hasOwnProperty.call(dataTree, key)) {
-                        dataTree[key].value = getAggValueByArr(dataTree[key].children, agg)
-                    }
-                }
-                return dataTree
-            }
-            const provinceField = cols.find(
-                (field) => model[field.name].visualType === 'geoProvince'
-            )
-            if (provinceField) {
-                // like (province,agg(sum),data[])
-                dataTree = getDataByProvinceField(provinceField.name, valueField, data)
-                return dataTree
-            }
-            return {}
-        }
-        if (mapData.mapLevel === 'province') {
-            //  const districtField = cols.find((field) => model[field.name].visualType  === 'geoDistrict')
-            //  if (districtField) {
-            //      dataTree = getDataByDistrictField(provinceField.name, data)
-            //      return dataTree
-            //  }
-            const cityField = cols.find(
-                (field) => model[field.name].visualType === 'geoCity'
-            )
-            if (cityField) {
-                dataTree = getDataByCityFieldForProvince(cityField.name, valueField, data, '河北')
-                return dataTree
-            }
-            return {}
-        }
-    }
-    const { min = 0, max = 0 } = getMinMaxByDataTree(dataTree)
+    const { dataTree, min, max } = baseOption
     const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(
         min,
         max,
@@ -130,9 +53,6 @@ export function getMapOption(
             children: []
         }
     })
-    console.log('data', data)
-    console.log('dataTree', dataTree)
-    console.log('seriesData', seriesData)
     localStorage.setItem('NewseriesData', JSON.stringify(seriesData))
     return {
         tooltip,
