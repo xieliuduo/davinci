@@ -33,17 +33,19 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
     const mapData = { mapLevel: 'country', currentCode: 'china', drillEnable: false, limitLevel: 'province'}
     const { selectedChart, chartStyles } = props
     if (selectedChart !== 7) {
-      return
+      return mapData
     }
     const { scope, drillLevel } = chartStyles
-    mapData.limitLevel = drillLevel.level
-    mapData.drillEnable = drillLevel.enabled
-    // 由小到大
-    for (let i = 0; i < GeoLevels.length; i++) {
-      if (scope[GeoLevels[i]]) {
-        mapData.mapLevel = GeoLevels[i]
-        mapData.currentCode = scope[GeoLevels[i]]
-        break
+    if (scope && drillLevel) {
+      mapData.limitLevel = drillLevel.level
+      mapData.drillEnable = drillLevel.enabled
+      // 由小到大
+      for (let i = 0; i < GeoLevels.length; i++) {
+        if (scope[GeoLevels[i]]) {
+          mapData.mapLevel = GeoLevels[i]
+          mapData.currentCode = scope[GeoLevels[i]]
+          break
+        }
       }
     }
     return mapData
@@ -74,30 +76,25 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
       this.instance.off('click')
       this.instance.on('click', (params) => {
         // 如果是 地图 chartid =7
-        debugger
-        console.log('params', params)
-
         if (selectedChart === 7) {
-          if (params && params.data) {
-            mapData = this.getMapData(props)
-            if (!params.data) {
-              this.renderChart(props, mapData)
-              return
-            }
-            const index = GeoLevels.indexOf(params.data.mapLevel)
-            const limitIndex = GeoLevels.indexOf(mapData.limitLevel)
-            if (!(mapData.drillEnable && index >= limitIndex)) {
-              this.renderChart(props, mapData)
-              return
-            }
-            mapData.mapLevel = params.data.mapLevel
-            mapData.currentCode = params.data.curMapCode
-            mapData.mapName = params.data.curMapName
+          mapData = this.getMapData(props)
+          if (!params.data) {
             this.renderChart(props, mapData)
+            return
           }
-        } else {
-          this.collectSelectedItems(params)
+          const index = GeoLevels.indexOf(params.data.mapLevel)
+          const limitIndex = GeoLevels.indexOf(mapData.limitLevel)
+          if (!(mapData.drillEnable && index >= limitIndex)) {
+              this.renderChart(props, mapData)
+              return
+            }
+          mapData.mapLevel = params.data.mapLevel
+          mapData.currentCode = params.data.curMapCode
+          mapData.mapName = params.data.curMapName
+          this.renderChart(props, mapData)
+
         }
+        this.collectSelectedItems(params)
       })
       const drillOptions = {
         instance: this.instance,
@@ -120,6 +117,9 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         option
       )
       this.instance.resize()
+
+
+
     } catch (error) {
       if (onError) {
         onError(error)

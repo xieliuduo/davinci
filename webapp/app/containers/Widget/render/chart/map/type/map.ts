@@ -33,14 +33,13 @@ export function getMapOption(
     const { spec} = chartStyles
     const { roam } = spec
     const { mapData } = drillOptions
-    const { dataTree, min, max } = baseOption
+    const { dataTree, min, max, tooltip, labelOption, itemStyle } = baseOption
     const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(
         min,
         max,
         'map',
         chartStyles
     )
-    const { tooltip, geo, labelOption, itemStyle } = baseOption
     const mapItem = visualMapOptions.show ? {} : itemStyle
     const seriesData = Object.keys(dataTree).map((key, index) => {
         const { lon, lat, value, mapLevel, curMapCode, curMapName  } = dataTree[key]

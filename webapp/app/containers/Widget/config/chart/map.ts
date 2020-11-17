@@ -76,7 +76,7 @@ const map: IChartInfo = {
       level: 'province'
     },
     scope : {
-      country: '100000',
+      country: 'china',
       province: '',
       city: ''
     },

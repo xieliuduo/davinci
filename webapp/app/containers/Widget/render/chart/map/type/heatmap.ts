@@ -28,13 +28,13 @@ import {getSymbolSize} from '../../util'
 export function getHeatmapOption(chartProps: IChartProps, drillOptions, baseOption) {
 
 const { chartStyles } = chartProps
-const { spec, mapItemStyle} = chartStyles
+const { spec} = chartStyles
 const { roam } = spec
 const {mapData } = drillOptions
-const { dataTree, min, max } = baseOption
+const { dataTree, min, max, geo, tooltip, labelOption, itemStyle } = baseOption
 const sizeRate = getSizeRate(min, max)
 const visualMapOptions: EChartOption.VisualMap = getVisualMapOptions(min, max, 'map', chartStyles)
-const {  geo, labelOption } = baseOption
+
 const mapSeriesData = Object.keys(dataTree).map((key, index) => {
         const { lon, lat, value, mapLevel, curMapCode, curMapName  } = dataTree[key]
         return {
@@ -89,17 +89,7 @@ return {
             show: false
           }
         },
-        itemStyle: {
-          normal: {
-            borderType: mapItemStyle.borderType,
-            areaColor: mapItemStyle.areaColor,
-            borderColor: mapItemStyle.borderColor,
-            borderWidth: mapItemStyle.borderWidth
-          },
-          emphasis: {
-            areaColor: mapItemStyle.areaColorEmphasis
-          }
-        },
+        itemStyle,
         labelOption,
         data: mapSeriesData
       }

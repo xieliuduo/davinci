@@ -37,7 +37,7 @@ import { getFormattedValue } from '../../../components/Config/Format'
 const mapJson = {} // map 地图 ID缓存
 export default function(chartProps: IChartProps, drillOptions) {
   const { chartStyles, data, cols, metrics, model } = chartProps
-  const { label, spec, mapItemStyle,  scope } = chartStyles
+  const { label, spec, mapItemStyle } = chartStyles
   const {
     labelColor,
     labelFontFamily,
@@ -45,7 +45,7 @@ export default function(chartProps: IChartProps, drillOptions) {
     labelPosition,
     showLabel
   } = label
-  const itemStyle = {
+  const itemStyle = mapItemStyle ? ({
       normal: {
             borderType: mapItemStyle.borderType,
             areaColor: mapItemStyle.areaColor,
@@ -55,7 +55,7 @@ export default function(chartProps: IChartProps, drillOptions) {
       emphasis: {
             areaColor: mapItemStyle.areaColorEmphasis
           }
-    }
+    }) : {}
   const { layerType, roam, linesSpeed, symbolType } = spec
 
   const {mapData } = drillOptions
@@ -89,13 +89,12 @@ export default function(chartProps: IChartProps, drillOptions) {
     })
   dataTree = getChartData(fields, mapData, valueField, data, agg)
   const { min = 0, max = 0 } = getMinMaxByDataTree(dataTree)
-
-
-
-    // ===
   const tooltip: EChartOption.Tooltip = {
     trigger: 'item',
     formatter: (params: EChartOption.Tooltip.Format) => {
+      if (!params.data) {
+        return params.name
+      }
       const { name, data, color } = params
       const tooltipLabels = []
       if (color) {

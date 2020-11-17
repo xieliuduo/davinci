@@ -18,9 +18,7 @@
  * limitations under the License.
  * >>
  */
-import { IChartProps } from '../../../components/Chart'
 import geoData from 'assets/js/geo.js'
-import geoCode from 'assets/js/pcl.js'
 import areas from 'assets/js/areas'
 import citys from 'assets/js/citys'
 import provinces from 'assets/js/provinces'
@@ -37,14 +35,8 @@ interface IFields {
   cityField: string,
   areaField: string
 }
-//     provinceField: '',
-//     cityField: '',
-//     areaField: ''
 const provinceSuffix = ['省', '市', '特别行政区', '维吾尔自治区', '回族自治区', '壮族自治区', '自治区', '行政区']
 const citySuffix = ['自治州', '市', '区', '市辖区', '县', '旗', '盟', '镇']
-
-
-
 export function getProvinceName(name) {
   provinceSuffix.forEach((ps) => {
     if (name.includes(ps)) {
@@ -163,7 +155,7 @@ export function getChartData(fields: IFields, mapData: ImapData, valueField: str
       dataTree = getCountryDataByCityField(fields.cityField, valueField, listData, agg)
       return dataTree
     } else {
-      alert('缺少省级数据')
+      // alert('缺少省级数据')
       return dataTree
     }
   }
@@ -172,7 +164,7 @@ export function getChartData(fields: IFields, mapData: ImapData, valueField: str
       dataTree = getProvinceDataBycityField(fields, mapData, valueField, listData)
       return dataTree
     } else {
-      alert('缺少城市级数据')
+      // alert('缺少城市级数据')
       return dataTree
     }
   }
