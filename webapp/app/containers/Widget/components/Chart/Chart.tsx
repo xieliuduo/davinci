@@ -103,6 +103,7 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         getDataDrillDetail,
         selectedItems: this.props.selectedItems,
         callback: (seriesData) => {
+          this.instance.off('click')
           this.instance.on('click', (params) => {
             this.collectSelectedItems(params, seriesData)
           })
