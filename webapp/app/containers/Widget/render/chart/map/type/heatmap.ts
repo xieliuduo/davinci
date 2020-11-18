@@ -67,7 +67,7 @@ return {
           return {
             name: key,
             value: [lon, lat, value],
-            symbolSize: getSymbolSize(sizeRate, value) / 2,
+            symbolSize: getSymbolSize(sizeRate, value),
             curMapCode,
             mapLevel,
             curMapName

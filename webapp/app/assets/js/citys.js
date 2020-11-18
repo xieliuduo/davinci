@@ -2128,7 +2128,7 @@ export default [
         "lon": 106.53063501341,
         "lat": 29.544606108886,
         "value": "500200",
-        "label": "县",
+        "label": "重庆县市",
         "children": [],
         "provinceName": "重庆市"
     },

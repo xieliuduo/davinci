@@ -34,7 +34,8 @@ import { getScatterOption } from './type/scatter'
 import { getHeatmapOption } from './type/heatmap'
 import { getLinesOption } from './type/lines'
 import { getFormattedValue } from '../../../components/Config/Format'
-const mapJson = {} // map 地图 ID缓存
+const mapJsonCacheFlag = {} // map 地图 ID缓存
+
 export default function(chartProps: IChartProps, drillOptions) {
   const { chartStyles, data, cols, metrics, model } = chartProps
   const { label, spec, mapItemStyle } = chartStyles
@@ -60,15 +61,7 @@ export default function(chartProps: IChartProps, drillOptions) {
 
   const {mapData } = drillOptions
 
-  if (mapJson[mapData.currentCode]) {
-    console.log(mapData.currentCode)
-  } else {
-     const json = require(`assets/json/geoJson/${mapData.currentCode}.json`)
-     if (json) {
-      mapJson[mapData.currentCode] = json
-      echarts.registerMap(mapData.currentCode, json)
-    }
-  }
+
   let dataTree = {}
   const agg = metrics[0].agg
   const metricName = decodeMetricName(metrics[0].name)
@@ -138,7 +131,6 @@ export default function(chartProps: IChartProps, drillOptions) {
     min,
     max
   }
-
   let options = {}
   switch (layerType) {
     case 'map':
@@ -155,8 +147,48 @@ export default function(chartProps: IChartProps, drillOptions) {
       break
     default:
       throw Error('Unable to find layerType')
-      break
   }
-  console.log('options', options)
-  return options
+
+  function getMap(codeString: string) {
+    return new Promise((resolve, reject) => {
+        try {
+            const mapJsonFile = require(`assets/json/geoJson/${codeString}.json`)
+            resolve(mapJsonFile)
+        } catch (error) {
+          console.log('error', error)
+          reject('noMapJson')
+        }
+
+    })
+  }
+  // 异步加载方法
+  if (mapJsonCacheFlag[mapData.currentCode]) {
+        if (typeof mapJsonCacheFlag[mapData.currentCode] === 'boolean') {
+            return  options
+        } else {
+          return mapJsonCacheFlag[mapData.currentCode]
+        }
+
+    } else {
+       mapJsonCacheFlag[mapData.currentCode] = getMap(mapData.currentCode)
+            .then((json: object) => {
+                echarts.registerMap(mapData.currentCode, json)
+                mapJsonCacheFlag[mapData.currentCode] = true
+                return options
+            })
+       return mapJsonCacheFlag[mapData.currentCode]
+    }
+
+
+  // 同步加载方法
+  // if (mapJsonCacheFlag[mapData.currentCode]) {
+  //   console.log(mapData.currentCode)
+  // } else {
+  //    const json = require(`assets/json/geoJson/${mapData.currentCode}.json`)
+  //    if (json) {
+  //     mapJsonCacheFlag[mapData.currentCode] = json
+  //     echarts.registerMap(mapData.currentCode, json)
+  //   }
+  // }
+  // return options
 }

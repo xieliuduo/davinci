@@ -18,8 +18,9 @@
  * limitations under the License.
  * >>
  */
-import geoData from 'assets/js/geo.js'
-import areas from 'assets/js/areas'
+import { message as Message } from 'antd'
+// import geoData from 'assets/js/geo.js'
+// import areas from 'assets/js/areas'
 import citys from 'assets/js/citys'
 import provinces from 'assets/js/provinces'
 import {
@@ -155,7 +156,7 @@ export function getChartData(fields: IFields, mapData: ImapData, valueField: str
       dataTree = getCountryDataByCityField(fields.cityField, valueField, listData, agg)
       return dataTree
     } else {
-      // alert('缺少省级数据')
+      Message.error('缺少省级数据')
       return dataTree
     }
   }
@@ -165,6 +166,7 @@ export function getChartData(fields: IFields, mapData: ImapData, valueField: str
       return dataTree
     } else {
       // alert('缺少城市级数据')
+      Message.error('缺该省城市级数据')
       return dataTree
     }
   }
@@ -172,10 +174,11 @@ export function getChartData(fields: IFields, mapData: ImapData, valueField: str
 }
 export function getMinMaxByDataTree(dataTree: object) {
   const dataArr = Object.values(dataTree).map((item) => item.value)
-  let min = Math.min(...dataArr)
-  const max = Math.max(...dataArr)
-  if (min === max) {
-    min = min - 10
+  let min = 0
+  let max = 0
+  if (dataArr.length > 0) {
+     min = Math.min(...dataArr)
+     max = Math.max(...dataArr)
   }
   return { min, max }
 }

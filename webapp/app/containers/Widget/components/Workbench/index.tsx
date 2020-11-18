@@ -197,9 +197,6 @@ export class Workbench extends React.Component<
         queryMode,
         ...rest
       } = config
-      console.log('currentWidget', currentWidget)
-      console.log('...rest', rest)
-
       this.setState({
         id,
         name,

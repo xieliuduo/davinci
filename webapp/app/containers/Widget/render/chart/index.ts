@@ -35,7 +35,7 @@ import gauge from './gauge'
 import { EChartOption } from 'echarts'
 import { IChartProps } from '../../components/Chart'
 
-export default function(type, chartProps: IChartProps, drillOptions?: any): EChartOption {
+export default function(type, chartProps: IChartProps, drillOptions?: any): EChartOption | Promise<EChartOption> {
   switch (type) {
     case 'line': return line(chartProps, drillOptions)
     // @ts-ignore

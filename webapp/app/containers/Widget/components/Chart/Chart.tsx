@@ -1,9 +1,11 @@
 import React from 'react'
+import { message as Message } from 'antd'
 import { IChartProps } from './index'
 import chartlibs from '../../config/chart'
 import echarts from 'echarts/lib/echarts'
-import { ECharts } from 'echarts'
+import { ECharts, EChartOption } from 'echarts'
 import chartOptionGenerator from '../../render/chart'
+import { isPromise} from 'utils/util'
 const   styles = require('./Chart.less')
 const   GeoLevels = ['city', 'province', 'country']
 interface IChartStates {
@@ -88,10 +90,11 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
               this.renderChart(props, mapData)
               return
             }
-          mapData.mapLevel = params.data.mapLevel
-          mapData.currentCode = params.data.curMapCode
-          mapData.mapName = params.data.curMapName
-          this.renderChart(props, mapData)
+          const newMapData = { ...mapData}
+          newMapData.mapLevel = params.data.mapLevel
+          newMapData.currentCode = params.data.curMapCode
+          newMapData.mapName = params.data.curMapName
+          this.renderChart(props, newMapData)
 
         }
         this.collectSelectedItems(params)
@@ -114,12 +117,20 @@ export class Chart extends React.PureComponent<IChartProps, IChartStates> {
         props,
         drillOptions
       )
-      this.instance.setOption(
-        option
-      )
-      this.instance.resize()
-
-
+      if (isPromise(option)) {
+        (option as Promise<EChartOption>).then((newOption) => {
+          this.instance.setOption(newOption)
+          this.instance.resize()
+        }).catch(() => {
+          Message.error('暂没有找到相关地图文件')
+          return
+        })
+      } else {
+        this.instance.setOption(
+          (option as EChartOption)
+        )
+        this.instance.resize()
+      }
 
     } catch (error) {
       if (onError) {
