@@ -27,7 +27,6 @@ import {
   DEFAULT_ECHARTS_THEME
 } from 'app/globalConstants'
 interface ImapData {
-  mapName: string,
   mapLevel: string,
   currentCode: string
 }

@@ -223,7 +223,7 @@ export class OperatingPanel extends React.Component<
       mode: 'pivot',
       currentWidgetlibs: widgetlibs['pivot'],
       chartModeSelectedChart: getTable(),
-      selectedTab: 'style',
+      selectedTab: 'data',
       dataParams: Object.entries(getPivot().data).reduce(
         (params: IDataParams, [key, value]) => {
           params[key] = { ...value, items: [] }

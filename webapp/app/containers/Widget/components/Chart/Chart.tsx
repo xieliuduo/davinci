@@ -9,7 +9,7 @@ import { isPromise} from 'utils/util'
 const   styles = require('./Chart.less')
 const   GeoLevels = ['city', 'province', 'country']
 interface IChartStates {
-  seriesItems: string[],
+  seriesItems: string[]
 }
 export class Chart extends React.PureComponent<IChartProps, IChartStates> {
   private asyncEmitTimer: NodeJS.Timer | null = null

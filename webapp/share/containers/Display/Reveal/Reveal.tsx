@@ -64,9 +64,9 @@ const ShareDisplayReveal: React.FC = () => {
       transition: transitionStyle,
       transitionSpeed,
 
-      viewDistance: 100
+      viewDistance: 100,
 
-      // plugins: [RevealZoom]
+      plugins: [RevealZoom]
     })
   }, [])
 

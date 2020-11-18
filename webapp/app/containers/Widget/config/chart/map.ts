@@ -68,8 +68,7 @@ const map: IChartInfo = {
       layerType: 'map',
       roam: false,
       symbolType: CHART_LINES_SYMBOL_TYPE[0].value,
-      linesSpeed: '10',
-      mapName: 'china'
+      linesSpeed: '10'
     },
     drillLevel: {
       enabled:  true,
