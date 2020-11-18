@@ -30,7 +30,7 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
     const { proxies } = JSON.parse(jsonConfig)
     proxyTarget = proxies.find((proxy) => proxy.enabled).target
   }
-
+ 
   app.use(
     ['/api/v3', '/image'],
     proxy({ target: proxyTarget, changeOrigin: true })
@@ -41,6 +41,21 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
   // Since webpackDevMiddleware uses memory-fs internally to store build
   // artifacts, we use it instead
   const fsMemory = middleware.fileSystem
+
+  app.get('/mock/*', (req, res) => {
+    const filePath = path.join(process.cwd(), req.originalUrl)
+    // const filePath = path.join(process.cwd(), '..', req.originalUrl)
+    const accept = req.get('Accept')
+    const contentType = accept && accept.split(',')[0]
+    fs.readFile(filePath, (err, file) => {
+      if (err) {
+        res.sendStatus(404)
+      } else {
+        res.set({ 'Content-Type': contentType })
+        res.send(file.toString())
+      }
+    })
+  })
 
   app.get('*', (req, res) => {
     fsMemory.readFile(

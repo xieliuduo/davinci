@@ -22,7 +22,7 @@ import { IChartProps } from '../../../components/Chart'
 import { EChartOption } from 'echarts'
 import echarts from 'echarts/lib/echarts'
 
-
+import loadResource, { loadFile } from 'app/utils/loadResource'
 import { decodeMetricName } from '../../../components/util'
 import {
     getMinMaxByDataTree,
@@ -34,6 +34,7 @@ import { getScatterOption } from './type/scatter'
 import { getHeatmapOption } from './type/heatmap'
 import { getLinesOption } from './type/lines'
 import { getFormattedValue } from '../../../components/Config/Format'
+
 const mapJsonCacheFlag = {} // map 地图 ID缓存
 
 export default function(chartProps: IChartProps, drillOptions) {
@@ -149,10 +150,24 @@ export default function(chartProps: IChartProps, drillOptions) {
       throw Error('Unable to find layerType')
   }
 
+
+
   function getMap(codeString: string) {
     return new Promise((resolve, reject) => {
         try {
             const mapJsonFile = require(`assets/json/geoJson/${codeString}.json`)
+            resolve(mapJsonFile)
+        } catch (error) {
+          console.log('error', error)
+          reject('noMapJson')
+        }
+
+    })
+  }
+  async function getMapFile(codeString: string) {
+    return new Promise((resolve, reject) => {
+        try {
+            const mapJsonFile = loadFile(`/geoJson/${codeString}.json`)
             resolve(mapJsonFile)
         } catch (error) {
           console.log('error', error)
@@ -170,7 +185,7 @@ export default function(chartProps: IChartProps, drillOptions) {
         }
 
     } else {
-       mapJsonCacheFlag[mapData.currentCode] = getMap(mapData.currentCode)
+       mapJsonCacheFlag[mapData.currentCode] = getMapFile(mapData.currentCode)
             .then((json: object) => {
                 echarts.registerMap(mapData.currentCode, json)
                 mapJsonCacheFlag[mapData.currentCode] = true
