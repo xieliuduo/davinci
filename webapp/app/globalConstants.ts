@@ -210,3 +210,6 @@ export const DEFAULT_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 export const DEFAULT_JWT_TOKEN_EXPIRED = 60 * 60 * 1000 // ms
 export const DOWNLOAD_LIST_POLLING_FREQUENCY = 30000  // ms
 export const DEFAULT_CACHE_EXPIRED = 300  // sec
+
+
+export const STATIC_FILE_PATH = process.env.NODE_ENV === 'development' ? '/mock' : '/resource'

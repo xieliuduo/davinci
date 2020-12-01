@@ -37,11 +37,23 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
   )
   app.use(middleware)
   app.use(webpackHotMiddleware(compiler))
-
+ 
   // Since webpackDevMiddleware uses memory-fs internally to store build
   // artifacts, we use it instead
   const fsMemory = middleware.fileSystem
-
+  app.get('/mock/*', (req, res) => {
+    const filePath = path.join(process.cwd(), req.originalUrl)
+    const accept = req.get('Accept')
+    const contentType = accept && accept.split(',')[0]
+    fs.readFile(filePath, (err, file) => {
+      if (err) {
+        res.sendStatus(404)
+      } else {
+        res.set({ 'Content-Type': contentType })
+        res.send(file.toString())
+      }
+    })
+  })
   app.get('*', (req, res) => {
     fsMemory.readFile(
       path.join(compiler.outputPath, 'index.html'),
