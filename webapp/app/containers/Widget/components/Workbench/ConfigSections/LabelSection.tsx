@@ -25,6 +25,7 @@ export interface ILabelConfig {
     | 'percentage'
     | 'conversion'
     | 'arrival'
+    | 'upperLabel'
   >
   pieLabelPosition?: string
   funnelLabelPosition?: string
@@ -49,8 +50,9 @@ export class LabelSection extends React.PureComponent<ILabelSectionProps, {}> {
     {
       label: '指标值',
       value: 'indicatorValue',
-      charts: ['pie', 'funnel', 'radar']
+      charts: ['pie', 'funnel', 'radar', 'treemap']
     },
+      { label: '父标签', value: 'upperLabel', charts: ['treemap'] },
     { label: '转化率', value: 'conversion', charts: ['funnel'] },
     { label: '到达率', value: 'arrival', charts: ['funnel'] },
     { label: '百分比', value: 'percentage', charts: ['pie', 'funnel'] }
@@ -68,7 +70,7 @@ export class LabelSection extends React.PureComponent<ILabelSectionProps, {}> {
     this.props.onChange(prop, color)
   }
 
-  public render () {
+  public render() {
     const { title, config, name } = this.props
 
     const {

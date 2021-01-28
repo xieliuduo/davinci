@@ -191,7 +191,10 @@ export const CHART_LAYER_TYPES = [
   { name: '热力图', value: 'heatmap' },
   { name: '飞行图', value: 'lines' }
 ]
-
+export const MAP_DRILL_LEVELS = [
+  { name: '下钻到省', value: 'province' },
+  { name: '下钻到市', value: 'city' }
+]
 export const CHART_LINES_SYMBOL_TYPE = [
   { name: '圆形', value: 'circle' },
   { name: '矩形', value: 'rect' },
@@ -306,3 +309,6 @@ export const DEFAULT_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 export const DEFAULT_JWT_TOKEN_EXPIRED = 60 * 60 * 1000 // ms
 export const DOWNLOAD_LIST_POLLING_FREQUENCY = 30000 // ms
 export const DEFAULT_CACHE_EXPIRED = 300 // sec
+
+export const STATIC_FILE_PATH =
+  process.env.NODE_ENV === 'development' ? '/devResouce' : '/prodResouce'
