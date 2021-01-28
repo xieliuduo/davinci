@@ -7,7 +7,6 @@
  * @enum {number}
  */
 export enum ChartTypes {
-
   /**
    * 表格
    */
@@ -41,7 +40,7 @@ export enum ChartTypes {
   /**
    * 平行坐标图
    */
-  Parallel= 8,
+  Parallel = 8,
 
   /**
    * 漏斗图
@@ -52,7 +51,6 @@ export enum ChartTypes {
    * 桑基图
    */
   Sankey = 9,
-
 
   /**
    * 雷达图
@@ -92,7 +90,11 @@ export enum ChartTypes {
   /**
    * 仪表盘
    */
-  Gauge = 17
+  Gauge = 17,
+  /**
+   * 矩形树图
+   */
+  TreeMap = 18
 }
 
 export default ChartTypes
